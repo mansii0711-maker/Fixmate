@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Login | FixMate Local Service Platform{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>Welcome Back to FixMate</h2>
+            <p>Log in to manage your bookings, service listings, or administrative operations.</p>
+        </div>
+
+        <div class="auth-body">
+            <form action="{{ url_for('auth.login') }}" method="POST">
+                <div class="form-group">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="Enter your registered email" required>
+                </div>
+
+                <div class="form-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <label for="password" class="form-label" style="margin-bottom: 0;">Password</label>
+                        <a href="{{ url_for('auth.forgot_password') }}" style="font-size: 0.82rem; color: var(--primary); font-weight: 600;">Forgot Password?</a>
+                    </div>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 10px;">
+                    <i class="fa-solid fa-right-to-bracket"></i> Login to Account
+                </button>
+            </form>
+
+            <div style="text-align: center; margin-top: 20px; font-size: 0.9rem; color: var(--gray-600);">
+                Don't have a FixMate account? <a href="{{ url_for('auth.register') }}" style="color: var(--primary); font-weight: 700;">Register Here</a>
+            </div>
+
+            <!-- Viva Demo One-Click Login Box -->
+            <div class="demo-accounts-box">
+                <div class="demo-accounts-title">
+                    <i class="fa-solid fa-key"></i> Quick Viva Demo Accounts
+                </div>
+                <div class="demo-btn-group">
+                    <button class="btn btn-outline btn-sm" onclick="fillDemoAccount('customer@fixmate.com', 'customer123')">
+                        <i class="fa-solid fa-user"></i> Customer Demo
+                    </button>
+                    <button class="btn btn-outline btn-sm" onclick="fillDemoAccount('provider@fixmate.com', 'provider123')">
+                        <i class="fa-solid fa-user-gear"></i> Provider Demo
+                    </button>
+                    <button class="btn btn-outline btn-sm" onclick="fillDemoAccount('admin@fixmate.com', 'admin123')">
+                        <i class="fa-solid fa-shield-halved"></i> Admin Demo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

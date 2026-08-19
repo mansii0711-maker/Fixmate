@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Services | FixMate Local Services Catalog{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top: 40px;">
+    <div class="container">
+        <h1 class="section-title">Explore Verified Local Services</h1>
+        <p class="section-subtitle">Filter by category, area location, max price, or minimum rating</p>
+
+        <!-- Filter Card -->
+        <div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-sm); margin-bottom: 40px;">
+            <form action="{{ url_for('public.services') }}" method="GET" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto; gap: 12px; align-items: end;">
+                
+                <div class="search-field" style="border: 1px solid var(--gray-300);">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" name="q" value="{{ search_query }}" placeholder="Search service title...">
+                </div>
+
+                <div class="search-field" style="border: 1px solid var(--gray-300);">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <select name="category">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.slug }}" {% if selected_category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="search-field" style="border: 1px solid var(--gray-300);">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <select name="area">
+                        <option value="">All Operating Areas</option>
+                        {% for area in operating_areas %}
+                            <option value="{{ area }}" {% if area_query == area %}selected{% endif %}>{{ area }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="search-field" style="border: 1px solid var(--gray-300);">
+                    <i class="fa-solid fa-indian-rupee-sign"></i>
+                    <input type="number" name="max_price" value="{{ max_price }}" placeholder="Max Price (₹)">
+                </div>
+
+                <div class="search-field" style="border: 1px solid var(--gray-300);">
+                    <i class="fa-solid fa-star"></i>
+                    <select name="min_rating">
+                        <option value="">Rating</option>
+                        <option value="4.5" {% if min_rating == '4.5' %}selected{% endif %}>4.5★ & Up</option>
+                        <option value="4.0" {% if min_rating == '4.0' %}selected{% endif %}>4.0★ & Up</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="height: 48px;"><i class="fa-solid fa-filter"></i> Apply</button>
+            </form>
+        </div>
+
+        <!-- Services Result Grid -->
+        {% if services %}
+            <div class="services-grid">
+                {% for service in services %}
+                    <div class="service-card">
+                        <div class="service-card-body">
+                            <span class="service-badge">{{ service.category.name }}</span>
+                            <h3 class="service-title">{{ service.title }}</h3>
+                            <p class="service-desc">{{ service.description }}</p>
+
+                            <div style="background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 12px; margin-bottom: 12px;">
+                                <div class="provider-name" style="font-size: 0.95rem; margin-bottom: 4px;">
+                                    <i class="fa-solid fa-user-check" style="color: var(--secondary);"></i>
+                                    {{ service.provider.user.full_name }}
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-size: 0.84rem; color: var(--gray-600);">
+                                    <span><i class="fa-solid fa-award" style="color: var(--accent);"></i> {{ service.provider.experience }} Yrs Exp</span>
+                                    <span class="rating-badge"><i class="fa-solid fa-star"></i> {{ service.provider.rating }} ({{ service.provider.total_reviews }})</span>
+                                </div>
+                            </div>
+
+                            <div style="font-size: 0.84rem; color: var(--gray-600);">
+                                <i class="fa-solid fa-map-pin"></i> Area: {{ service.provider.operating_area }}
+                            </div>
+                        </div>
+
+                        <div class="service-card-footer">
+                            <div class="service-price">₹{{ "%.0f"|format(service.price) }} <span>/ {{ service.price_type }}</span></div>
+                            <div style="display: flex; gap: 6px;">
+                                <a href="{{ url_for('public.service_detail', service_id=service.id) }}" class="btn btn-outline btn-sm">
+                                    <i class="fa-solid fa-eye"></i> Details
+                                </a>
+                                <a href="{{ url_for('public.book_now_gate', service_id=service.id) }}" class="btn btn-primary btn-sm">
+                                    <i class="fa-solid fa-calendar-check"></i> Book Now
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 60px 20px; background: var(--white); border-radius: var(--radius-lg); border: 1px dashed var(--gray-300);">
+                <i class="fa-solid fa-magnifying-glass" style="font-size: 3rem; color: var(--gray-400); margin-bottom: 16px;"></i>
+                <h3>No Providers Found</h3>
+                <p style="color: var(--gray-600); margin-top: 6px;">No providers found matching your search criteria. Please try another area or change your filters.</p>
+                <a href="{{ url_for('public.services') }}" class="btn btn-outline" style="margin-top: 20px;">Clear All Filters</a>
+            </div>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}

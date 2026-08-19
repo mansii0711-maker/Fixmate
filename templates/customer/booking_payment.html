@@ -1,0 +1,248 @@
+{% extends 'customer/layout.html' %}
+
+{% block title %}Select Payment Method | FixMate{% endblock %}
+
+{% block customer_content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    
+    <!-- Step Progress Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: var(--white); padding: 16px 24px; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); box-shadow: var(--shadow-sm);">
+        <div style="display: flex; align-items: center; gap: 10px; color: var(--success); font-weight: 700;">
+            <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--success); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.85rem;"><i class="fa-solid fa-check"></i></span>
+            <span>Booking Summary</span>
+        </div>
+        <div style="width: 40px; height: 2px; background: var(--success);"></div>
+        <div style="display: flex; align-items: center; gap: 10px; color: var(--primary); font-weight: 700;">
+            <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.85rem;">2</span>
+            <span>Payment Options</span>
+        </div>
+        <div style="width: 40px; height: 2px; background: var(--gray-300);"></div>
+        <div style="display: flex; align-items: center; gap: 10px; color: var(--gray-400); font-weight: 600;">
+            <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--gray-200); color: var(--gray-600); display: flex; align-items: center; justify-content: center; font-size: 0.85rem;">3</span>
+            <span>Confirmation</span>
+        </div>
+    </div>
+
+    <!-- Alert Container for Payment Errors / Cancellations -->
+    <div id="payment-error-alert" style="display: none; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; padding: 16px; border-radius: var(--radius-md); margin-bottom: 20px; font-weight: 600; font-size: 0.95rem;">
+        <i class="fa-solid fa-triangle-exclamation"></i> <span id="payment-error-msg">Payment was cancelled or failed. You can retry payment or choose Cash After Service.</span>
+    </div>
+
+    <!-- Payment Options Selection Form -->
+    <div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-md); margin-bottom: 24px;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid var(--gray-200); margin-bottom: 24px;">
+            <div>
+                <h2 style="font-size: 1.6rem; color: var(--dark); margin: 0;"><i class="fa-solid fa-wallet" style="color: var(--primary);"></i> Select Payment Method</h2>
+                <p style="color: var(--gray-600); font-size: 0.9rem; margin-top: 4px;">Choose your preferred payment method to finalize your service booking.</p>
+            </div>
+            <div style="background: var(--primary-light); padding: 10px 18px; border-radius: var(--radius-md); border: 1px solid #c7d2fe; text-align: right;">
+                <span style="font-size: 0.76rem; color: var(--primary); font-weight: 700; text-transform: uppercase;">Total Payable</span>
+                <div style="font-size: 1.4rem; font-weight: 800; color: var(--dark);">₹{{ "%.0f"|format(pending.total_payable) }}</div>
+            </div>
+        </div>
+
+        <form id="payment-selection-form" action="{{ url_for('customer.process_booking_payment') }}" method="POST">
+            
+            <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 28px;">
+                
+                <!-- Option 1: Cash After Service -->
+                <label style="display: flex; align-items: center; justify-content: space-between; background: var(--gray-50); border: 2px solid var(--gray-300); border-radius: var(--radius-lg); padding: 20px; cursor: pointer; transition: var(--transition);" class="payment-option-card">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <input type="radio" name="payment_method" value="Cash After Service" checked style="width: 20px; height: 20px; accent-color: var(--primary);">
+                        <div>
+                            <div style="font-weight: 800; font-size: 1.1rem; color: var(--dark);">
+                                <i class="fa-solid fa-money-bill-wave" style="color: #059669;"></i> Cash After Service
+                            </div>
+                            <div style="font-size: 0.86rem; color: var(--gray-600); margin-top: 2px;">
+                                Pay cash directly to the technician after completion of the service visit.
+                            </div>
+                        </div>
+                    </div>
+                    <span style="font-size: 0.8rem; background: #e0f2fe; color: #0284c7; padding: 4px 10px; border-radius: var(--radius-full); font-weight: 700;">Zero Advance</span>
+                </label>
+
+                <!-- Option 2: Pay Online with Razorpay -->
+                <label style="display: flex; align-items: center; justify-content: space-between; background: var(--gray-50); border: 2px solid var(--gray-300); border-radius: var(--radius-lg); padding: 20px; cursor: pointer; transition: var(--transition);" class="payment-option-card">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <input type="radio" name="payment_method" value="Razorpay Test Mode" style="width: 20px; height: 20px; accent-color: var(--primary);">
+                        <div>
+                            <div style="font-weight: 800; font-size: 1.1rem; color: var(--dark);">
+                                <i class="fa-solid fa-credit-card" style="color: var(--primary);"></i> Pay Online with Razorpay
+                            </div>
+                            <div style="font-size: 0.86rem; color: var(--gray-600); margin-top: 2px;">
+                                Instant online payment (UPI, Cards, NetBanking) via Razorpay Sandbox.
+                            </div>
+                        </div>
+                    </div>
+                    <span style="font-size: 0.8rem; background: #d1fae5; color: #059669; padding: 4px 10px; border-radius: var(--radius-full); font-weight: 700;">Instant Confirm</span>
+                </label>
+
+            </div>
+
+            <!-- Actions -->
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <a href="{{ url_for('customer.booking_summary') }}" class="btn btn-outline">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Summary
+                </a>
+                <button type="submit" id="submit-payment-btn" class="btn btn-primary btn-lg" style="box-shadow: var(--shadow-glow);">
+                    <i class="fa-solid fa-lock"></i> Confirm & Complete Booking
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- Official Razorpay Standard Checkout SDK -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+document.getElementById('payment-selection-form').addEventListener('submit', function(e) {
+    var selectedMethod = document.querySelector('input[name="payment_method"]:checked').value;
+    
+    if (selectedMethod === 'Razorpay Test Mode') {
+        e.preventDefault(); // Stop normal form submission for Razorpay
+        
+        var submitBtn = document.getElementById('submit-payment-btn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Initializing Payment...';
+        hideError();
+
+        // 1. Send request to Flask backend to create Razorpay Order
+        fetch("{{ url_for('customer.create_razorpay_order') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                showError(data.message || "Failed to initialize Razorpay payment order.");
+                resetSubmitBtn();
+                return;
+            }
+
+            // 2. Launch Official Razorpay Standard Checkout Popup Modal
+            var options = {
+                "key": data.key_id,
+                "amount": data.amount,
+                "currency": data.currency,
+                "name": "FixMate Home Services",
+                "description": "Payment for Service Booking",
+                "image": "https://img.icons8.com/color/96/wrench.png",
+                "order_id": data.order_id,
+                "prefill": {
+                    "name": data.customer_name,
+                    "email": data.customer_email,
+                    "contact": data.customer_phone
+                },
+                "theme": {
+                    "color": "#10b981",
+                    "backdrop_color": "#064e3b"
+                },
+                "config": {
+                    "display": {
+                        "blocks": {
+                            "upi_block": {
+                                "name": "Pay via UPI / Google Pay / PhonePe",
+                                "instruments": [
+                                    {
+                                        "method": "upi"
+                                    }
+                                ]
+                            },
+                            "cards_wallets": {
+                                "name": "Cards & Wallets",
+                                "instruments": [
+                                    {
+                                        "method": "card"
+                                    },
+                                    {
+                                        "method": "wallet"
+                                    }
+                                ]
+                            }
+                        },
+                        "sequence": ["block.upi_block", "block.cards_wallets"],
+                        "preferences": {
+                            "show_default_blocks": false
+                        }
+                    }
+                },
+                "handler": function (response) {
+                    // 3. Send payment tokens to server for HMAC signature verification
+                    verifyPaymentOnServer({
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_signature: response.razorpay_signature
+                    });
+                },
+                "modal": {
+                    "ondismiss": function() {
+                        showError("Payment process was cancelled or closed. You can retry payment or choose Cash After Service.");
+                        resetSubmitBtn();
+                    }
+                }
+            };
+
+            var rzp = new Razorpay(options);
+            rzp.on('payment.failed', function (response){
+                showError("Payment Failed: " + (response.error.description || response.error.reason || "Payment declined."));
+                resetSubmitBtn();
+            });
+            rzp.open();
+        })
+        .catch(err => {
+            showError("Network error while communicating with payment gateway.");
+            resetSubmitBtn();
+        });
+    }
+});
+
+function verifyPaymentOnServer(paymentData) {
+    var submitBtn = document.getElementById('submit-payment-btn');
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying Payment Signature...';
+
+    fetch("{{ url_for('customer.verify_razorpay_payment') }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(paymentData)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success && result.redirect_url) {
+            window.location.href = result.redirect_url;
+        } else {
+            showError(result.message || "Server signature verification failed! Payment rejected.");
+            resetSubmitBtn();
+        }
+    })
+    .catch(err => {
+        showError("Server verification error. Please try again.");
+        resetSubmitBtn();
+    });
+}
+
+function showError(msg) {
+    var alertBox = document.getElementById('payment-error-alert');
+    var msgBox = document.getElementById('payment-error-msg');
+    msgBox.textContent = msg;
+    alertBox.style.display = 'block';
+}
+
+function hideError() {
+    document.getElementById('payment-error-alert').style.display = 'none';
+}
+
+function resetSubmitBtn() {
+    var submitBtn = document.getElementById('submit-payment-btn');
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Confirm & Complete Booking';
+}
+</script>
+{% endblock %}

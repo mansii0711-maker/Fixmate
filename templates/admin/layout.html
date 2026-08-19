@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Control Panel | FixMate System Administration{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 30px; padding-bottom: 60px;">
+    <div style="display: grid; grid-template-columns: 260px 1fr; gap: 30px; align-items: start;">
+        
+        <!-- Sidebar Navigation Menu for Admin Portal -->
+        <aside style="background: var(--dark); border-radius: var(--radius-lg); padding: 24px 16px; color: white; box-shadow: var(--shadow-md); position: sticky; top: 90px;">
+            
+            <div style="text-align: center; padding-bottom: 20px; border-bottom: 1px solid var(--gray-800); margin-bottom: 20px;">
+                <div style="width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; font-weight: 800; font-size: 1.6rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; box-shadow: var(--shadow-glow);">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h3 style="font-size: 1.1rem; margin-bottom: 2px; color: white;">{{ current_user.full_name }}</h3>
+                <span style="font-size: 0.78rem; color: #a5b4fc; font-weight: 700; background: rgba(255,255,255,0.1); padding: 2px 10px; border-radius: var(--radius-full);">System Administrator</span>
+            </div>
+
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 6px;">
+                <li>
+                    <a href="{{ url_for('admin.dashboard') }}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius-md); font-weight: 600; font-size: 0.92rem; color: {% if active_page == 'dashboard' %}white{% else %}var(--gray-400){% endif %}; background: {% if active_page == 'dashboard' %}var(--primary){% else %}transparent{% endif %}; transition: var(--transition);">
+                        <i class="fa-solid fa-gauge" style="width: 20px;"></i> Dashboard Overview
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin.providers') }}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius-md); font-weight: 600; font-size: 0.92rem; color: {% if active_page == 'providers' %}white{% else %}var(--gray-400){% endif %}; background: {% if active_page == 'providers' %}var(--primary){% else %}transparent{% endif %}; transition: var(--transition);">
+                        <i class="fa-solid fa-user-clock" style="width: 20px;"></i> Verification Queue
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin.users') }}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius-md); font-weight: 600; font-size: 0.92rem; color: {% if active_page == 'users' %}white{% else %}var(--gray-400){% endif %}; background: {% if active_page == 'users' %}var(--primary){% else %}transparent{% endif %}; transition: var(--transition);">
+                        <i class="fa-solid fa-users" style="width: 20px;"></i> User Management
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin.categories') }}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius-md); font-weight: 600; font-size: 0.92rem; color: {% if active_page == 'categories' %}white{% else %}var(--gray-400){% endif %}; background: {% if active_page == 'categories' %}var(--primary){% else %}transparent{% endif %}; transition: var(--transition);">
+                        <i class="fa-solid fa-layer-group" style="width: 20px;"></i> Service Categories
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin.bookings') }}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius-md); font-weight: 600; font-size: 0.92rem; color: {% if active_page == 'bookings' %}white{% else %}var(--gray-400){% endif %}; background: {% if active_page == 'bookings' %}var(--primary){% else %}transparent{% endif %}; transition: var(--transition);">
+                        <i class="fa-solid fa-chart-line" style="width: 20px;"></i> Bookings & Revenue
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin.contact_messages') }}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius-md); font-weight: 600; font-size: 0.92rem; color: {% if active_page == 'contact_messages' %}white{% else %}var(--gray-400){% endif %}; background: {% if active_page == 'contact_messages' %}var(--primary){% else %}transparent{% endif %}; transition: var(--transition);">
+                        <i class="fa-solid fa-envelope" style="width: 20px;"></i> Contact Messages
+                    </a>
+                </li>
+                <li style="margin-top: 16px; border-top: 1px solid var(--gray-800); padding-top: 16px;">
+                    <a href="{{ url_for('auth.logout') }}" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius-md); font-weight: 600; font-size: 0.92rem; color: #f87171; transition: var(--transition);">
+                        <i class="fa-solid fa-right-from-bracket" style="width: 20px;"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content Area for Admin Portal -->
+        <main>
+            {% block admin_content %}{% endblock %}
+        </main>
+    </div>
+</div>
+{% endblock %}

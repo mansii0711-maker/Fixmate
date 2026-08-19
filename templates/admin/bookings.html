@@ -1,0 +1,73 @@
+{% extends 'admin/layout.html' %}
+
+{% block title %}Bookings & Revenue Reports | Admin Control Panel{% endblock %}
+
+{% block admin_content %}
+<div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-sm); margin-bottom: 30px;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h2 style="font-size: 1.6rem; color: var(--dark); margin-bottom: 4px;"><i class="fa-solid fa-chart-line" style="color: var(--primary);"></i> Platform Bookings & Revenue Reports</h2>
+            <p style="color: var(--gray-600); font-size: 0.92rem;">Audit system-wide booking transactions and total platform monetary volume.</p>
+        </div>
+
+        <div style="background: var(--primary-light); padding: 12px 20px; border-radius: var(--radius-md); border: 1px solid #c7d2fe; text-align: right;">
+            <div style="font-size: 0.8rem; color: var(--primary); font-weight: 700;">TOTAL COMPLETED REVENUE</div>
+            <div style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">₹{{ "%.0f"|format(total_revenue) }}</div>
+        </div>
+    </div>
+</div>
+
+<div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm);">
+    
+    <!-- Status Filter Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="font-size: 1.2rem; color: var(--dark);">Booking Logs</h3>
+        
+        <div style="display: flex; gap: 8px;">
+            <a href="{{ url_for('admin.bookings', status='All') }}" class="btn btn-sm {% if current_filter == 'All' %}btn-primary{% else %}btn-outline{% endif %}">All</a>
+            <a href="{{ url_for('admin.bookings', status='Pending') }}" class="btn btn-sm {% if current_filter == 'Pending' %}btn-primary{% else %}btn-outline{% endif %}">Pending</a>
+            <a href="{{ url_for('admin.bookings', status='Confirmed') }}" class="btn btn-sm {% if current_filter == 'Confirmed' %}btn-primary{% else %}btn-outline{% endif %}">Confirmed</a>
+            <a href="{{ url_for('admin.bookings', status='Completed') }}" class="btn btn-sm {% if current_filter == 'Completed' %}btn-primary{% else %}btn-outline{% endif %}">Completed</a>
+        </div>
+    </div>
+
+    {% if bookings %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Customer</th>
+                        <th>Provider</th>
+                        <th>Service Title</th>
+                        <th>Scheduled Date & Slot</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Payment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in bookings %}
+                        <tr>
+                            <td><strong>#FIX-{{ b.id }}</strong></td>
+                            <td>{{ b.customer.full_name }}<br><small style="color: var(--gray-600);">🇮🇳 +91 {{ b.customer.mobile }}</small></td>
+                            <td>{{ b.provider.full_name }}</td>
+                            <td><strong>{{ b.service.title }}</strong></td>
+                            <td>{{ b.booking_date }}<br><small style="color: var(--gray-600);">{{ b.time_slot }}</small></td>
+                            <td><strong>₹{{ "%.0f"|format(b.total_amount) }}</strong></td>
+                            <td><span class="badge-status badge-{{ b.status.lower() }}">{{ b.status }}</span></td>
+                            <td><span class="badge-status badge-{{ b.payment_status.lower() }}">{{ b.payment_status }}</span></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 40px; color: var(--gray-600);">
+            <p>No platform bookings found for the selected status.</p>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

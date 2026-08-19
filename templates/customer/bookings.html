@@ -1,0 +1,61 @@
+{% extends 'customer/layout.html' %}
+
+{% block title %}My Bookings | FixMate Customer Portal{% endblock %}
+
+{% block customer_content %}
+<div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-sm);">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <div>
+            <h2 style="font-size: 1.6rem; color: var(--dark); margin-bottom: 4px;">My Service Bookings</h2>
+            <p style="color: var(--gray-600); font-size: 0.92rem;">Track booking requests, confirmed schedules, and service completions.</p>
+        </div>
+
+        <!-- Filter Status Buttons -->
+        <div style="display: flex; gap: 8px;">
+            <a href="{{ url_for('customer.my_bookings') }}" class="btn btn-sm {% if not current_filter %}btn-primary{% else %}btn-outline{% endif %}">All</a>
+            <a href="{{ url_for('customer.my_bookings', status='Pending') }}" class="btn btn-sm {% if current_filter == 'Pending' %}btn-primary{% else %}btn-outline{% endif %}">Pending</a>
+            <a href="{{ url_for('customer.my_bookings', status='Confirmed') }}" class="btn btn-sm {% if current_filter == 'Confirmed' %}btn-primary{% else %}btn-outline{% endif %}">Confirmed</a>
+            <a href="{{ url_for('customer.my_bookings', status='Completed') }}" class="btn btn-sm {% if current_filter == 'Completed' %}btn-primary{% else %}btn-outline{% endif %}">Completed</a>
+        </div>
+    </div>
+
+    {% if bookings %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Service Title</th>
+                        <th>Provider Name</th>
+                        <th>Scheduled Date & Slot</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Payment Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in bookings %}
+                        <tr>
+                            <td><strong>#FIX-{{ b.id }}</strong></td>
+                            <td><strong>{{ b.service.title }}</strong><br><small style="color: var(--gray-600);">{{ b.service.category.name }}</small></td>
+                            <td>{{ b.provider.full_name }}<br><small style="color: var(--gray-600);">{{ b.provider.mobile }}</small></td>
+                            <td>{{ b.booking_date }}<br><small style="color: var(--gray-600);">{{ b.time_slot }}</small></td>
+                            <td><strong>₹{{ "%.0f"|format(b.total_amount) }}</strong></td>
+                            <td><span class="badge-status badge-{{ b.status.lower() }}">{{ b.status }}</span></td>
+                            <td><span class="badge-status badge-{{ b.payment_status.lower() }}">{{ b.payment_status }}</span></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 50px; color: var(--gray-600);">
+            <i class="fa-solid fa-calendar-xmark" style="font-size: 2.8rem; color: var(--gray-400); margin-bottom: 12px;"></i>
+            <p>No bookings found for the selected status.</p>
+            <a href="{{ url_for('customer.search_services') }}" class="btn btn-primary btn-sm" style="margin-top: 14px;">Explore Services</a>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

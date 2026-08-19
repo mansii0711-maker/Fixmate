@@ -1,0 +1,81 @@
+{% extends 'admin/layout.html' %}
+
+{% block title %}Provider Verification Queue | Admin Control Panel{% endblock %}
+
+{% block admin_content %}
+<div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-sm);">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <div>
+            <h2 style="font-size: 1.6rem; color: var(--dark); margin-bottom: 4px;"><i class="fa-solid fa-user-clock" style="color: var(--warning);"></i> Provider Verification Queue</h2>
+            <p style="color: var(--gray-600); font-size: 0.92rem;">Review trade credentials and background proof documents before approving provider accounts.</p>
+        </div>
+
+        <!-- Filter Status Buttons -->
+        <div style="display: flex; gap: 8px;">
+            <a href="{{ url_for('admin.providers', status='Pending') }}" class="btn btn-sm {% if current_filter == 'Pending' %}btn-primary{% else %}btn-outline{% endif %}">Pending</a>
+            <a href="{{ url_for('admin.providers', status='Approved') }}" class="btn btn-sm {% if current_filter == 'Approved' %}btn-primary{% else %}btn-outline{% endif %}">Approved</a>
+            <a href="{{ url_for('admin.providers', status='Rejected') }}" class="btn btn-sm {% if current_filter == 'Rejected' %}btn-primary{% else %}btn-outline{% endif %}">Rejected</a>
+            <a href="{{ url_for('admin.providers', status='All') }}" class="btn btn-sm {% if current_filter == 'All' %}btn-primary{% else %}btn-outline{% endif %}">All</a>
+        </div>
+    </div>
+
+    {% if providers %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Provider Name</th>
+                        <th>Contact Details</th>
+                        <th>Category & Experience</th>
+                        <th>Qualification</th>
+                        <th>Operating Area</th>
+                        <th>Verification Document</th>
+                        <th>Status / Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pp in providers %}
+                        <tr>
+                            <td><strong>{{ pp.user.full_name }}</strong></td>
+                            <td>{{ pp.user.email }}<br><small style="color: var(--gray-600);">🇮🇳 +91 {{ pp.user.mobile }}</small></td>
+                            <td><strong>{{ pp.category.name if pp.category else 'N/A' }}</strong><br><small style="color: var(--gray-600);">{{ pp.experience }} Years Exp</small></td>
+                            <td>{{ pp.qualification }}</td>
+                            <td>{{ pp.operating_area }}</td>
+                            <td>
+                                {% if pp.verification_doc %}
+                                    <a href="{{ url_for('static', filename='uploads/documents/' + pp.verification_doc) }}" target="_blank" class="btn btn-outline btn-sm" style="color: var(--primary); font-weight: 700;">
+                                        <i class="fa-solid fa-file-pdf"></i> View Doc
+                                    </a>
+                                {% else %}
+                                    <span style="color: var(--gray-400); font-size: 0.85rem;">No Document</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if pp.user.status == 'Pending' %}
+                                    <div style="display: flex; gap: 6px;">
+                                        <form action="{{ url_for('admin.approve_provider', user_id=pp.user.id) }}" method="POST" style="display: inline;">
+                                            <button type="submit" class="btn btn-secondary btn-sm"><i class="fa-solid fa-check"></i> Approve</button>
+                                        </form>
+                                        <form action="{{ url_for('admin.reject_provider', user_id=pp.user.id) }}" method="POST" style="display: inline;">
+                                            <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-xmark"></i> Reject</button>
+                                        </form>
+                                    </div>
+                                {% else %}
+                                    <span class="badge-status badge-{{ pp.user.status.lower() }}">{{ pp.user.status }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 40px; color: var(--gray-600);">
+            <i class="fa-solid fa-circle-check" style="font-size: 2.5rem; color: var(--success); margin-bottom: 12px;"></i>
+            <p>No providers found for the selected status filter.</p>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

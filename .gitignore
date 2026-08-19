@@ -1,0 +1,19 @@
+# Environment & Credentials
+.env
+.env.local
+
+# Python Cache & Bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment & Instance
+venv/
+env/
+instance/
+.pytest_cache/
+
+# OS Files
+.DS_Store
+Thumbs.db

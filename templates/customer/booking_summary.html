@@ -1,0 +1,109 @@
+{% extends 'customer/layout.html' %}
+
+{% block title %}Booking Summary | FixMate{% endblock %}
+
+{% block customer_content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    
+    <!-- Step Progress Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: var(--white); padding: 16px 24px; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); box-shadow: var(--shadow-sm);">
+        <div style="display: flex; align-items: center; gap: 10px; color: var(--primary); font-weight: 700;">
+            <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.85rem;">1</span>
+            <span>Booking Summary</span>
+        </div>
+        <div style="width: 40px; height: 2px; background: var(--gray-300);"></div>
+        <div style="display: flex; align-items: center; gap: 10px; color: var(--gray-400); font-weight: 600;">
+            <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--gray-200); color: var(--gray-600); display: flex; align-items: center; justify-content: center; font-size: 0.85rem;">2</span>
+            <span>Payment Options</span>
+        </div>
+        <div style="width: 40px; height: 2px; background: var(--gray-300);"></div>
+        <div style="display: flex; align-items: center; gap: 10px; color: var(--gray-400); font-weight: 600;">
+            <span style="width: 28px; height: 28px; border-radius: 50%; background: var(--gray-200); color: var(--gray-600); display: flex; align-items: center; justify-content: center; font-size: 0.85rem;">3</span>
+            <span>Confirmation</span>
+        </div>
+    </div>
+
+    <!-- Booking Summary Invoice Card -->
+    <div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-md); margin-bottom: 24px;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 20px; border-bottom: 1px solid var(--gray-200); margin-bottom: 24px;">
+            <div>
+                <span class="service-badge" style="margin-bottom: 8px;">{{ service.category.name }}</span>
+                <h2 style="font-size: 1.6rem; color: var(--dark); margin: 0;">{{ service.title }}</h2>
+                <p style="color: var(--gray-600); font-size: 0.9rem; margin-top: 4px;">Review your service details and pricing breakdown before proceeding to payment.</p>
+            </div>
+            <div style="text-align: right;">
+                <span style="font-size: 0.8rem; color: var(--gray-500); font-weight: 700; text-transform: uppercase;">Estimated Time</span>
+                <div style="font-weight: 700; color: var(--dark);"><i class="fa-regular fa-clock" style="color: var(--primary);"></i> {{ service.estimated_time }}</div>
+            </div>
+        </div>
+
+        <!-- Details Grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px;">
+            
+            <div style="background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 18px;">
+                <h4 style="font-size: 0.92rem; color: var(--gray-500); text-transform: uppercase; margin-bottom: 12px; font-weight: 700;">
+                    <i class="fa-solid fa-user-check" style="color: var(--secondary);"></i> Service Provider
+                </h4>
+                <div style="font-weight: 700; color: var(--dark); font-size: 1.05rem;">{{ provider.full_name }}</div>
+                <div style="font-size: 0.86rem; color: var(--gray-600); margin-top: 4px;">
+                    Category: <strong>{{ service.category.name }}</strong>
+                </div>
+                <div style="font-size: 0.86rem; color: var(--gray-600); margin-top: 2px;">
+                    Experience: <strong>{{ service.provider.experience }} Years</strong>
+                </div>
+            </div>
+
+            <div style="background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 18px;">
+                <h4 style="font-size: 0.92rem; color: var(--gray-500); text-transform: uppercase; margin-bottom: 12px; font-weight: 700;">
+                    <i class="fa-solid fa-calendar-days" style="color: var(--primary);"></i> Schedule & Location
+                </h4>
+                <div style="font-weight: 700; color: var(--dark); font-size: 0.98rem;">Date: {{ pending.booking_date }}</div>
+                <div style="font-size: 0.88rem; color: var(--primary); font-weight: 700; margin-top: 2px;">Time Slot: {{ pending.time_slot }}</div>
+                <div style="font-size: 0.84rem; color: var(--gray-600); margin-top: 6px;">
+                    <i class="fa-solid fa-location-dot"></i> {{ pending.address }}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Pricing Breakdown Invoice Table -->
+        <h4 style="font-size: 1.1rem; color: var(--dark); margin-bottom: 14px;"><i class="fa-solid fa-receipt" style="color: var(--primary);"></i> Price Breakdown</h4>
+        <div style="background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 18px; margin-bottom: 28px;">
+            
+            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--gray-300);">
+                <span style="color: var(--gray-700);">Service Charge ({{ service.price_type }})</span>
+                <span style="font-weight: 700; color: var(--dark);">₹{{ "%.0f"|format(pending.service_charge) }}</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--gray-300);">
+                <span style="color: var(--gray-700);">Platform Convenience Fee</span>
+                <span style="font-weight: 700; color: var(--dark);">₹{{ "%.0f"|format(pending.platform_fee) }}</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--gray-300);">
+                <span style="color: var(--gray-700);">Discount</span>
+                <span style="font-weight: 700; color: var(--success);">- ₹{{ "%.0f"|format(pending.discount) }}</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; padding: 12px 0 4px; font-size: 1.2rem; font-weight: 800; color: var(--dark);">
+                <span>Total Amount Payable</span>
+                <span style="color: var(--primary);">₹{{ "%.0f"|format(pending.total_payable) }}</span>
+            </div>
+
+        </div>
+
+        <!-- Actions -->
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="{{ url_for('customer.service_detail', service_id=service.id) }}" class="btn btn-outline">
+                <i class="fa-solid fa-arrow-left"></i> Change Details
+            </a>
+            <a href="{{ url_for('customer.booking_payment') }}" class="btn btn-primary btn-lg" style="box-shadow: var(--shadow-glow);">
+                Select Payment Method <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

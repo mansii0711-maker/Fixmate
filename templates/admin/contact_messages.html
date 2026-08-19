@@ -1,0 +1,44 @@
+{% extends 'admin/layout.html' %}
+
+{% block title %}Contact Inquiries | Admin Control Panel{% endblock %}
+
+{% block admin_content %}
+<div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-sm);">
+    
+    <h2 style="font-size: 1.6rem; color: var(--dark); margin-bottom: 6px;"><i class="fa-solid fa-envelope" style="color: var(--primary);"></i> Contact Us Inquiries</h2>
+    <p style="color: var(--gray-600); font-size: 0.92rem; margin-bottom: 24px;">Messages submitted by visitors and customers via the public contact form.</p>
+
+    {% if contact_messages %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Sender Name</th>
+                        <th>Email Address</th>
+                        <th>Subject</th>
+                        <th>Message Content</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for msg in contact_messages %}
+                        <tr>
+                            <td><small style="color: var(--gray-600);">{{ msg.created_at.strftime('%Y-%m-%d %H:%M') }}</small></td>
+                            <td><strong>{{ msg.name }}</strong></td>
+                            <td><a href="mailto:{{ msg.email }}" style="color: var(--primary); font-weight: 600;">{{ msg.email }}</a></td>
+                            <td><strong>{{ msg.subject }}</strong></td>
+                            <td style="font-size: 0.88rem; color: var(--gray-700); max-width: 320px;">{{ msg.message }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 40px; color: var(--gray-600);">
+            <i class="fa-solid fa-inbox" style="font-size: 2.5rem; color: var(--gray-400); margin-bottom: 12px;"></i>
+            <p>No contact messages received yet.</p>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+
+{% block title %}FixMate | On-Demand Local Service Booking Platform{% endblock %}
+
+{% block content %}
+
+<!-- Hero Banner -->
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fa-solid fa-shield-halved"></i> 100% Verified Local Professionals
+            </div>
+            <h1 class="hero-title">Trusted Home Services, <span>Booked in Seconds</span></h1>
+            <p class="hero-subtitle">Find verified electricians, plumbers, carpenters, cleaners, appliance repair experts, and home tutors right in your neighborhood.</p>
+
+            <!-- Search Bar Form -->
+            <div class="search-card">
+                <form action="{{ url_for('public.services') }}" method="GET" class="search-form">
+                    <div class="search-field">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" name="q" placeholder="What service do you need? (e.g. Fan Repair)">
+                    </div>
+
+                    <div class="search-field">
+                        <i class="fa-solid fa-list-check"></i>
+                        <select name="category">
+                            <option value="">All Categories</option>
+                            {% for cat in categories %}
+                                <option value="{{ cat.slug }}">{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="search-field">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <select name="area">
+                            <option value="">All Operating Areas</option>
+                            {% for area in operating_areas %}
+                                <option value="{{ area }}">{{ area }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-search"></i> Find Pros</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Counter Banner -->
+<section class="stats-banner">
+    <div class="container">
+        <div class="stats-grid">
+            <div>
+                <div class="stat-number">{{ stats.verified_providers }}+</div>
+                <div class="stat-label">Verified Service Providers</div>
+            </div>
+            <div>
+                <div class="stat-number">{{ stats.satisfied_customers }}+</div>
+                <div class="stat-label">Happy Customers</div>
+            </div>
+            <div>
+                <div class="stat-number">{{ stats.completed_bookings }}+</div>
+                <div class="stat-label">Successful Bookings</div>
+            </div>
+            <div>
+                <div class="stat-number">4.9 ★</div>
+                <div class="stat-label">Average Satisfaction Rating</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Service Categories Section -->
+<section class="section">
+    <div class="container">
+        <h2 class="section-title">Explore Popular Service Categories</h2>
+        <p class="section-subtitle">Select a category to discover qualified and vetted local technicians near you</p>
+
+        <div class="categories-grid">
+            {% for cat in categories %}
+                <a href="{{ url_for('public.services', category=cat.slug) }}" class="category-card">
+                    <div class="category-icon">
+                        <i class="fa-solid {{ cat.icon }}"></i>
+                    </div>
+                    <h3 class="category-name">{{ cat.name }}</h3>
+                    <p class="category-desc">{{ cat.description }}</p>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Popular Services Showcase -->
+<section class="section" style="background: var(--gray-100);">
+    <div class="container">
+        <h2 class="section-title">Top Rated Services Available Now</h2>
+        <p class="section-subtitle">Upfront fixed pricing with instant booking confirmation</p>
+
+        <div class="services-grid">
+            {% for service in popular_services %}
+                <div class="service-card">
+                    <div class="service-card-body">
+                        <span class="service-badge">{{ service.category.name }}</span>
+                        <h3 class="service-title">{{ service.title }}</h3>
+                        <p class="service-desc">{{ service.description }}</p>
+
+                        <div class="service-provider-info">
+                            <div class="provider-name">
+                                <i class="fa-solid fa-user-check" style="color: var(--secondary);"></i>
+                                {{ service.provider.user.full_name }}
+                            </div>
+                            <div class="rating-badge">
+                                <i class="fa-solid fa-star"></i> {{ service.provider.rating }} ({{ service.provider.total_reviews }})
+                            </div>
+                        </div>
+                    </div>
+                    <div class="service-card-footer">
+                        <div class="service-price">₹{{ "%.0f"|format(service.price) }} <span>/ {{ service.price_type }}</span></div>
+                        <a href="{{ url_for('public.book_now_gate', service_id=service.id) }}" class="btn btn-primary btn-sm">
+                            <i class="fa-solid fa-calendar-check"></i> Book Now
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="{{ url_for('public.services') }}" class="btn btn-outline btn-lg"><i class="fa-solid fa-grid"></i> View All Services</a>
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose FixMate -->
+<section class="section">
+    <div class="container">
+        <h2 class="section-title">Why Choose FixMate?</h2>
+        <p class="section-subtitle">We bring transparency, safety, and convenience to local service booking</p>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-user-shield"></i></div>
+                <h3>Verified Professionals</h3>
+                <p>Every service provider undergoes background check and document verification by our admin team before listing.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-tag"></i></div>
+                <h3>Upfront & Transparent Pricing</h3>
+                <p>No hidden charges or unexpected surges. You know the exact price before confirming your booking.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                <h3>Punctual & Reliable</h3>
+                <p>Choose time slots convenient to your schedule with real-time tracking of booking status updates.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-headset"></i></div>
+                <h3>Dedicated Customer Support</h3>
+                <p>Have questions or need assistance? Our support team is here to help you every step of the way.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="section" style="background: var(--white);">
+    <div class="container">
+        <h2 class="section-title">How FixMate Works</h2>
+        <p class="section-subtitle">Book your local expert in 4 easy steps</p>
+
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <h3>Search & Discover</h3>
+                <p>Browse through categorized local services or search by your location and category.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <h3>Select Date & Slot</h3>
+                <p>Pick a date and convenient time slot that fits your schedule best.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <h3>Provider Confirmation</h3>
+                <p>The provider reviews your request and confirms the visit.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">4</div>
+                <h3>Service & Payment</h3>
+                <p>Get service delivered at your doorstep and pay securely cash-on-delivery or online.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Customer Reviews Section -->
+<section class="section" style="background: var(--gray-100);">
+    <div class="container">
+        <h2 class="section-title">What Our Customers Say</h2>
+        <p class="section-subtitle">Real feedback from satisfied customers across your city</p>
+
+        <div class="reviews-grid">
+            {% for rev in recent_reviews %}
+                <div class="review-card">
+                    <div class="stars">
+                        {% for i in range(rev.rating) %}
+                            <i class="fa-solid fa-star"></i>
+                        {% endfor %}
+                    </div>
+                    <p class="review-text">"{{ rev.comment }}"</p>
+                    <div class="review-author">
+                        <div class="author-avatar">{{ rev.customer.full_name[0] }}</div>
+                        <div>
+                            <strong>{{ rev.customer.full_name }}</strong>
+                            <div style="font-size: 0.8rem; color: var(--gray-600);">Verified Customer</div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Contact Teaser Banner -->
+<section class="section" style="background: linear-gradient(135deg, var(--primary), var(--dark)); color: white; text-align: center;">
+    <div class="container">
+        <h2 style="color: white; font-size: 2.4rem; margin-bottom: 16px;">Have Questions or Need Help?</h2>
+        <p style="color: var(--gray-300); font-size: 1.1rem; max-width: 600px; margin: 0 auto 30px;">Reach out to our support team or apply as a service provider to start growing your business with FixMate.</p>
+        <div style="display: flex; justify-content: center; gap: 16px;">
+            <a href="{{ url_for('public.contact') }}" class="btn btn-secondary btn-lg"><i class="fa-solid fa-paper-plane"></i> Contact Us</a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-outline btn-lg" style="color: white; border-color: white;"><i class="fa-solid fa-briefcase"></i> Become a Provider</a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

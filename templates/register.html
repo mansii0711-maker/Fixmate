@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}Register | FixMate Account Creation{% endblock %}
+
+{% block content %}
+<div class="auth-container" style="max-width: 680px;">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>Create Your FixMate Account</h2>
+            <p>Join as a Customer to book services, or register as a Service Provider to grow your business.</p>
+        </div>
+
+        <div class="auth-body">
+            <!-- Role Toggle Tabs -->
+            <div class="role-tabs">
+                <button type="button" id="tab-btn-customer" class="role-tab-btn {% if active_tab == 'customer' %}active{% endif %}" onclick="switchRegisterTab('customer')">
+                    <i class="fa-solid fa-user"></i> Customer Registration
+                </button>
+                <button type="button" id="tab-btn-provider" class="role-tab-btn {% if active_tab == 'provider' %}active{% endif %}" onclick="switchRegisterTab('provider')">
+                    <i class="fa-solid fa-user-gear"></i> Provider Registration
+                </button>
+            </div>
+
+            <!-- Registration Form with Client-side HTML5 & JS Standard Validation -->
+            <form action="{{ url_for('auth.register') }}" method="POST" enctype="multipart/form-data" id="registration-form">
+                <input type="hidden" name="role" id="role-hidden-input" value="{{ active_tab }}">
+
+                <!-- Shared Common User Fields -->
+                <div class="form-group">
+                    <label for="full_name" class="form-label">Full Name *</label>
+                    <input type="text" id="full_name" name="full_name" class="form-control" 
+                           placeholder="e.g. Rahul Sharma" 
+                           pattern="^[A-Za-z\s]{3,50}$" 
+                           minlength="3" maxlength="50"
+                           title="Full Name must contain only alphabetic characters and spaces (3-50 characters)." required>
+                    <small class="form-text" style="color: var(--gray-600); font-size: 0.78rem;">Format: Only alphabets and spaces allowed.</small>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address *</label>
+                        <input type="email" id="email" name="email" class="form-control" 
+                               placeholder="name@example.com" 
+                               pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                               title="Please enter a valid standard email address (e.g. name@domain.com)" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mobile" class="form-label">Indian Mobile Number (+91) *</label>
+                        <div style="display: flex; gap: 8px;">
+                            <span style="background: var(--gray-100); border: 1px solid var(--gray-300); border-radius: var(--radius-md); padding: 12px 14px; font-weight: 700; color: var(--gray-700); font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
+                                🇮🇳 +91
+                            </span>
+                            <input type="tel" id="mobile" name="mobile" class="form-control" 
+                                   placeholder="9876543210" 
+                                   pattern="[6-9][0-9]{9}" 
+                                   maxlength="10" minlength="10"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                   title="Must be a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="address" class="form-label">Complete Address / Street *</label>
+                    <textarea id="address" name="address" class="form-control" 
+                              placeholder="Flat No, Building Name, Street, Locality, Pincode" 
+                              minlength="10" 
+                              title="Please enter a complete address (minimum 10 characters)." required></textarea>
+                </div>
+
+                <!-- Customer Specific View Placeholder -->
+                <div id="customer-form" style="display: {% if active_tab == 'customer' %}block{% else %}none{% endif %};">
+                    <!-- Customer gets instant approval -->
+                </div>
+
+                <!-- Provider Specific Fields Block -->
+                <div id="provider-form" style="display: {% if active_tab == 'provider' %}block{% else %}none{% endif %};">
+                    <div style="background: var(--primary-light); padding: 12px 16px; border-radius: var(--radius-md); font-size: 0.85rem; color: var(--primary); font-weight: 600; margin-bottom: 20px;">
+                        <i class="fa-solid fa-circle-info"></i> Provider accounts remain <strong>Pending</strong> until approved by the Admin team.
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="experience" class="form-label">Experience (Years) *</label>
+                            <input type="number" id="experience" name="experience" min="0" max="50" class="form-control" placeholder="e.g. 5">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="category_id" class="form-label">Service Category *</label>
+                            <select id="category_id" name="category_id" class="form-control">
+                                <option value="">Select Category</option>
+                                {% for cat in categories %}
+                                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="qualification" class="form-label">Qualification / Certification *</label>
+                        <input type="text" id="qualification" name="qualification" class="form-control" minlength="3" placeholder="e.g. ITI Electrical, Master Plumber Cert, B.Sc Maths">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="operating_area" class="form-label">Operating Areas / Localities *</label>
+                        <input type="text" id="operating_area" name="operating_area" class="form-control" minlength="3" placeholder="e.g. Dadar, Bandra, Andheri West">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Upload Verification Document (ID / Trade License) *</label>
+                        <label for="verification_doc" class="file-upload-box" style="display: block;">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <div style="font-weight: 600; font-size: 0.9rem;">Click to upload document (PDF, PNG, JPG, DOC)</div>
+                            <div id="file-name-display" style="font-size: 0.8rem; color: var(--gray-600); margin-top: 4px;">Mandatory for Provider verification. Max size: 16 MB</div>
+                            <input type="file" id="verification_doc" name="verification_doc" style="display: none;" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Password Fields -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password" class="form-label">Password *</label>
+                        <input type="password" id="password" name="password" class="form-control" placeholder="Minimum 6 characters" minlength="6" maxlength="50" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm_password" class="form-label">Confirm Password *</label>
+                        <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Re-enter password" minlength="6" maxlength="50" required>
+                        <div id="password-match-msg" style="font-size: 0.8rem; margin-top: 4px; font-weight: 600;"></div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 10px;">
+                    <i class="fa-solid fa-user-check"></i> Complete Registration
+                </button>
+            </form>
+
+            <div style="text-align: center; margin-top: 20px; font-size: 0.9rem; color: var(--gray-600);">
+                Already have an account? <a href="{{ url_for('auth.login') }}" style="color: var(--primary); font-weight: 700;">Login Here</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ service.title }} | FixMate{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top: 40px;">
+    <div class="container" style="max-width: 1000px;">
+        
+        <a href="{{ url_for('public.services') }}" style="display: inline-flex; align-items: center; gap: 8px; color: var(--gray-600); font-weight: 600; margin-bottom: 24px;">
+            <i class="fa-solid fa-arrow-left"></i> Back to Services Catalog
+        </a>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+            
+            <!-- Main Service Information -->
+            <div>
+                <div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-sm); margin-bottom: 30px;">
+                    <span class="service-badge" style="font-size: 0.85rem;">{{ service.category.name }}</span>
+                    <h1 style="font-size: 2.2rem; margin: 12px 0 16px;">{{ service.title }}</h1>
+                    
+                    <div style="display: flex; align-items: center; gap: 20px; border-bottom: 1px solid var(--gray-200); padding-bottom: 20px; margin-bottom: 20px; color: var(--gray-600); font-size: 0.95rem;">
+                        <div><i class="fa-solid fa-tag" style="color: var(--primary);"></i> Price Type: <strong>{{ service.price_type }}</strong></div>
+                        <div><i class="fa-solid fa-map-pin" style="color: var(--secondary);"></i> Operating Area: <strong>{{ service.provider.operating_area }}</strong></div>
+                    </div>
+
+                    <h3 style="font-size: 1.2rem; margin-bottom: 10px;">Service Overview</h3>
+                    <p style="color: var(--gray-700); font-size: 1rem; line-height: 1.7; margin-bottom: 30px;">{{ service.description }}</p>
+
+                    <h3 style="font-size: 1.2rem; margin-bottom: 16px;">About Service Provider</h3>
+                    <div style="display: flex; gap: 16px; align-items: center; background: var(--gray-50); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--gray-200);">
+                        <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--primary-light); color: var(--primary); font-weight: 800; font-size: 1.4rem; display: flex; align-items: center; justify-content: center;">
+                            {{ provider.full_name[0] }}
+                        </div>
+                        <div>
+                            <h4 style="font-size: 1.1rem; margin-bottom: 4px;">{{ provider.full_name }}</h4>
+                            <div style="font-size: 0.88rem; color: var(--gray-600);">
+                                <i class="fa-solid fa-award" style="color: var(--accent);"></i> {{ service.provider.qualification }} ({{ service.provider.experience }} Years Experience)
+                            </div>
+                            <div style="font-size: 0.88rem; color: var(--accent); font-weight: 700; margin-top: 4px;">
+                                ★ {{ service.provider.rating }} ({{ service.provider.total_reviews }} Verified Reviews)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reviews List -->
+                <div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-sm);">
+                    <h3 style="font-size: 1.3rem; margin-bottom: 20px;">Customer Reviews & Ratings</h3>
+                    {% if reviews %}
+                        {% for r in reviews %}
+                            <div style="border-bottom: 1px solid var(--gray-200); padding-bottom: 16px; margin-bottom: 16px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <strong>{{ r.customer.full_name }}</strong>
+                                    <div class="stars">
+                                        {% for i in range(r.rating) %}
+                                            <i class="fa-solid fa-star"></i>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <p style="color: var(--gray-700); font-size: 0.92rem;">"{{ r.comment }}"</p>
+                                <span style="font-size: 0.78rem; color: var(--gray-400);">{{ r.created_at.strftime('%b %d, %Y') }}</span>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: var(--gray-600);">No reviews recorded yet for this provider.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Booking Card Sidebar -->
+            <div>
+                <div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-md); position: sticky; top: 100px;">
+                    <div style="font-size: 0.9rem; color: var(--gray-600); margin-bottom: 4px;">Service Rate</div>
+                    <div style="font-size: 2.2rem; font-weight: 800; color: var(--dark); margin-bottom: 20px;">
+                        ₹{{ "%.0f"|format(service.price) }} <span style="font-size: 0.9rem; font-weight: 500; color: var(--gray-600);">/ {{ service.price_type }}</span>
+                    </div>
+
+                    {% if current_user.is_authenticated and current_user.role == 'customer' %}
+                        <form action="{{ url_for('customer.book_service', service_id=service.id) }}" method="POST">
+                            <div class="form-group">
+                                <label for="booking_date" class="form-label">Select Date *</label>
+                                <input type="date" id="booking_date" name="booking_date" class="form-control" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="time_slot" class="form-label">Preferred Time Slot *</label>
+                                <select id="time_slot" name="time_slot" class="form-control" required>
+                                    <option value="">Select Time Slot</option>
+                                    <option value="09:00 AM - 11:00 AM">09:00 AM - 11:00 AM</option>
+                                    <option value="11:00 AM - 01:00 PM">11:00 AM - 01:00 PM</option>
+                                    <option value="02:00 PM - 04:00 PM">02:00 PM - 04:00 PM</option>
+                                    <option value="04:00 PM - 06:00 PM">04:00 PM - 06:00 PM</option>
+                                    <option value="06:00 PM - 08:00 PM">06:00 PM - 08:00 PM</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="address" class="form-label">Service Delivery Address *</label>
+                                <textarea id="address" name="address" class="form-control" required>{{ current_user.address }}</textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="notes" class="form-label">Notes / Instructions</label>
+                                <input type="text" id="notes" name="notes" class="form-control" placeholder="e.g. Bring extra ladder / Call before arriving">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+                                <i class="fa-solid fa-check-circle"></i> Confirm Booking Request
+                            </button>
+                        </form>
+                    {% elif current_user.is_authenticated %}
+                        <div style="background: var(--accent-light); padding: 16px; border-radius: var(--radius-md); text-align: center; color: var(--warning); font-weight: 600;">
+                            You are logged in as a {{ current_user.role|capitalize }}. Please log in with a Customer account to book services.
+                        </div>
+                    {% else %}
+                        <div style="text-align: center;">
+                            <p style="color: var(--gray-600); margin-bottom: 16px; font-size: 0.95rem;">Please log in or create a customer account to schedule this service.</p>
+                            <a href="{{ url_for('public.book_now_gate', service_id=service.id) }}" class="btn btn-primary btn-lg" style="width: 100%;">
+                                <i class="fa-solid fa-right-to-bracket"></i> Login to Book Service
+                            </a>
+                        </div>
+                    {% endif %}
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}

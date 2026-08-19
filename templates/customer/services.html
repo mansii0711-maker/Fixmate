@@ -1,0 +1,98 @@
+{% extends 'customer/layout.html' %}
+
+{% block title %}Search Services | FixMate Customer Portal{% endblock %}
+
+{% block customer_content %}
+
+<div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); margin-bottom: 30px;">
+    <h2 style="font-size: 1.5rem; color: var(--dark); margin-bottom: 16px;"><i class="fa-solid fa-magnifying-glass"></i> Search & Filter Local Services</h2>
+
+    <form action="{{ url_for('customer.search_services') }}" method="GET" style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 14px; align-items: end;">
+        
+        <div>
+            <label class="form-label">Category</label>
+            <select name="category" class="form-control">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.slug }}" {% if selected_category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label class="form-label">Operating Area</label>
+            <select name="area" class="form-control">
+                <option value="">All Operating Areas</option>
+                {% for area in operating_areas %}
+                    <option value="{{ area }}" {% if area_query == area %}selected{% endif %}>{{ area }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label class="form-label">Max Price (₹)</label>
+            <input type="number" name="max_price" value="{{ max_price }}" class="form-control" placeholder="e.g. 1000">
+        </div>
+
+        <div>
+            <label class="form-label">Min Rating</label>
+            <select name="min_rating" class="form-control">
+                <option value="">Any Rating</option>
+                <option value="4.5" {% if min_rating == '4.5' %}selected{% endif %}>4.5★ & Above</option>
+                <option value="4.0" {% if min_rating == '4.0' %}selected{% endif %}>4.0★ & Above</option>
+                <option value="3.5" {% if min_rating == '3.5' %}selected{% endif %}>3.5★ & Above</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="height: 44px;"><i class="fa-solid fa-filter"></i> Apply</button>
+    </form>
+</div>
+
+<!-- Search Results Grid -->
+{% if services %}
+    <div class="services-grid">
+        {% for service in services %}
+            <div class="service-card">
+                <div class="service-card-body">
+                    <span class="service-badge">{{ service.category.name }}</span>
+                    <h3 class="service-title">{{ service.title }}</h3>
+                    <p class="service-desc">{{ service.description }}</p>
+
+                    <div style="background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 12px; margin-bottom: 16px;">
+                        <div style="font-weight: 700; color: var(--dark); font-size: 0.95rem; margin-bottom: 4px;">
+                            <i class="fa-solid fa-user-check" style="color: var(--secondary);"></i> {{ service.provider.user.full_name }}
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.84rem; color: var(--gray-600);">
+                            <span><i class="fa-solid fa-award" style="color: var(--accent);"></i> {{ service.provider.experience }} Yrs Experience</span>
+                            <span style="font-weight: 700; color: var(--accent);"><i class="fa-solid fa-star"></i> {{ service.provider.rating }} ({{ service.provider.total_reviews }})</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="service-card-footer" style="flex-direction: column; gap: 12px; align-items: stretch;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="service-price">₹{{ "%.0f"|format(service.price) }} <span style="font-size: 0.8rem; font-weight: 500;">/ {{ service.price_type }}</span></div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <a href="{{ url_for('customer.service_detail', service_id=service.id) }}" class="btn btn-outline btn-sm">
+                            <i class="fa-solid fa-eye"></i> View Details
+                        </a>
+                        <a href="{{ url_for('customer.service_detail', service_id=service.id) }}#booking-section" class="btn btn-primary btn-sm">
+                            <i class="fa-solid fa-calendar-check"></i> Book Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div style="text-align: center; padding: 60px 20px; background: var(--white); border-radius: var(--radius-lg); border: 1px dashed var(--gray-300);">
+        <i class="fa-solid fa-magnifying-glass" style="font-size: 3rem; color: var(--gray-400); margin-bottom: 16px;"></i>
+        <h3>No Providers Found</h3>
+        <p style="color: var(--gray-600); margin-top: 6px;">No providers found matching your search criteria. Please try another area or change your filters.</p>
+        <a href="{{ url_for('customer.search_services') }}" class="btn btn-outline" style="margin-top: 16px;">Reset Filters</a>
+    </div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends 'provider/layout.html' %}
+
+{% block title %}Booking Requests | FixMate Provider Portal{% endblock %}
+
+{% block provider_content %}
+<div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-sm); margin-bottom: 30px;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h2 style="font-size: 1.6rem; color: var(--dark); margin-bottom: 4px;"><i class="fa-solid fa-bell" style="color: var(--primary);"></i> Incoming Booking Requests</h2>
+            <p style="color: var(--gray-600); font-size: 0.92rem;">Review customer service requests, accept or reject schedules, and update job progress.</p>
+        </div>
+
+        <!-- Filter Buttons -->
+        <div style="display: flex; gap: 8px;">
+            <a href="{{ url_for('provider.booking_requests') }}" class="btn btn-sm {% if not current_filter %}btn-primary{% else %}btn-outline{% endif %}">All</a>
+            <a href="{{ url_for('provider.booking_requests', status='Pending') }}" class="btn btn-sm {% if current_filter == 'Pending' %}btn-primary{% else %}btn-outline{% endif %}">Pending</a>
+            <a href="{{ url_for('provider.booking_requests', status='Confirmed') }}" class="btn btn-sm {% if current_filter == 'Confirmed' %}btn-primary{% else %}btn-outline{% endif %}">Confirmed</a>
+            <a href="{{ url_for('provider.booking_requests', status='Completed') }}" class="btn btn-sm {% if current_filter == 'Completed' %}btn-primary{% else %}btn-outline{% endif %}">Completed</a>
+        </div>
+    </div>
+</div>
+
+<div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-sm);">
+    {% if bookings %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Customer Details</th>
+                        <th>Service Requested</th>
+                        <th>Scheduled Date & Slot</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in bookings %}
+                        <tr>
+                            <td><strong>#FIX-{{ b.id }}</strong></td>
+                            <td>
+                                <strong>{{ b.customer.full_name }}</strong><br>
+                                <small style="color: var(--gray-600);"><i class="fa-solid fa-phone"></i> {{ b.customer.mobile }}</small><br>
+                                <small style="color: var(--gray-600);"><i class="fa-solid fa-location-dot"></i> {{ b.address }}</small>
+                            </td>
+                            <td>
+                                <strong>{{ b.service.title }}</strong><br>
+                                {% if b.notes %}
+                                    <small style="color: var(--gray-600); font-style: italic;">Note: "{{ b.notes }}"</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>{{ b.booking_date }}</strong><br>
+                                <small style="color: var(--gray-600);"><i class="fa-regular fa-clock"></i> {{ b.time_slot }}</small>
+                            </td>
+                            <td><strong style="color: var(--primary); font-size: 1.05rem;">₹{{ "%.0f"|format(b.total_amount) }}</strong></td>
+                            <td><span class="badge-status badge-{{ b.status.lower() }}">{{ b.status }}</span></td>
+                            <td>
+                                {% if b.status == 'Pending' %}
+                                    <div style="display: flex; gap: 6px;">
+                                        <form action="{{ url_for('provider.update_booking_status', booking_id=b.id) }}" method="POST" style="display: inline;">
+                                            <input type="hidden" name="status" value="Confirmed">
+                                            <button type="submit" class="btn btn-success btn-sm"><i class="fa-solid fa-check"></i> Accept</button>
+                                        </form>
+                                        <form action="{{ url_for('provider.update_booking_status', booking_id=b.id) }}" method="POST" style="display: inline;">
+                                            <input type="hidden" name="status" value="Cancelled">
+                                            <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-xmark"></i> Reject</button>
+                                        </form>
+                                    </div>
+                                {% elif b.status == 'Confirmed' %}
+                                    <form action="{{ url_for('provider.update_booking_status', booking_id=b.id) }}" method="POST">
+                                        <input type="hidden" name="status" value="Completed">
+                                        <button type="submit" class="btn btn-primary btn-sm"><i class="fa-solid fa-circle-check"></i> Mark Completed</button>
+                                    </form>
+                                {% else %}
+                                    <span style="font-size: 0.85rem; color: var(--gray-500); font-weight: 600;">Finished</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 50px 20px; color: var(--gray-600);">
+            <i class="fa-solid fa-bell-slash" style="font-size: 2.8rem; color: var(--gray-400); margin-bottom: 12px;"></i>
+            <p>No booking requests found for the selected status.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

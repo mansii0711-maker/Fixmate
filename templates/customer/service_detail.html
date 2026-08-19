@@ -1,0 +1,135 @@
+{% extends 'customer/layout.html' %}
+
+{% block title %}{{ service.title }} | FixMate Service Details{% endblock %}
+
+{% block customer_content %}
+
+<a href="{{ url_for('customer.search_services') }}" style="display: inline-flex; align-items: center; gap: 8px; color: var(--gray-600); font-weight: 600; margin-bottom: 20px;">
+    <i class="fa-solid fa-arrow-left"></i> Back to Search Services
+</a>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+    
+    <!-- Main Service & Provider Card -->
+    <div>
+        <!-- Service Visual Header & Image Banner -->
+        <div style="background: linear-gradient(135deg, #064e3b, var(--primary)); border-radius: var(--radius-lg) var(--radius-lg) 0 0; padding: 32px; color: white; position: relative; overflow: hidden; display: flex; justify-content: space-between; align-items: center; gap: 20px;">
+            <div>
+                <span style="background: rgba(255,255,255,0.2); backdrop-filter: blur(8px); padding: 4px 14px; border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">
+                    <i class="fa-solid {{ service.category.icon }}"></i> {{ service.category.name }}
+                </span>
+                <h1 style="font-size: 2.1rem; color: white; margin: 12px 0 6px;">{{ service.title }}</h1>
+                <div style="font-size: 1.2rem; font-weight: 700; color: #a5b4fc;">
+                    Charges: ₹{{ "%.0f"|format(service.price) }} <span style="font-size: 0.9rem; font-weight: 500; color: white;">({{ service.price_type }})</span>
+                </div>
+            </div>
+            <!-- Service Image / Visual Representation Badge -->
+            <div style="width: 90px; height: 90px; border-radius: var(--radius-lg); background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: white; flex-shrink: 0; box-shadow: var(--shadow-md);">
+                <i class="fa-solid {{ service.category.icon }}"></i>
+            </div>
+        </div>
+
+        <div style="background: var(--white); border: 1px solid var(--gray-200); border-top: none; border-radius: 0 0 var(--radius-lg) var(--radius-lg); padding: 32px; box-shadow: var(--shadow-sm); margin-bottom: 30px;">
+            
+            <h3 style="font-size: 1.3rem; color: var(--dark); margin-bottom: 12px;">Service Description</h3>
+            <p style="color: var(--gray-700); font-size: 1rem; line-height: 1.7; margin-bottom: 30px;">{{ service.description }}</p>
+
+            <h3 style="font-size: 1.3rem; color: var(--dark); margin-bottom: 16px;">Provider Profile</h3>
+            <div style="display: flex; gap: 20px; align-items: center; background: var(--gray-50); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--gray-200);">
+                <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--primary-light); color: var(--primary); font-weight: 800; font-size: 1.6rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    {{ provider.full_name[0] }}
+                </div>
+                <div>
+                    <h4 style="font-size: 1.2rem; color: var(--dark); margin-bottom: 4px;">{{ provider.full_name }}</h4>
+                    <div style="font-size: 0.9rem; color: var(--gray-600); margin-bottom: 4px;">
+                        <i class="fa-solid fa-graduation-cap" style="color: var(--primary);"></i> Qualification: <strong>{{ service.provider.qualification }}</strong>
+                    </div>
+                    <div style="font-size: 0.9rem; color: var(--gray-600); margin-bottom: 4px;">
+                        <i class="fa-solid fa-award" style="color: var(--accent);"></i> Total Experience: <strong>{{ service.provider.experience }} Years</strong>
+                    </div>
+                    <div style="font-size: 0.95rem; color: var(--accent); font-weight: 700;">
+                        ★ {{ service.provider.rating }} ({{ service.provider.total_reviews }} Verified Customer Reviews)
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Verified Reviews Section -->
+        <div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-sm);">
+            <h3 style="font-size: 1.3rem; color: var(--dark); margin-bottom: 20px;">Customer Reviews & Feedback</h3>
+            {% if reviews %}
+                {% for r in reviews %}
+                    <div style="border-bottom: 1px solid var(--gray-200); padding-bottom: 16px; margin-bottom: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <strong>{{ r.customer.full_name }}</strong>
+                            <div class="stars">
+                                {% for i in range(r.rating) %}
+                                    <i class="fa-solid fa-star"></i>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <p style="color: var(--gray-700); font-size: 0.92rem;">"{{ r.comment }}"</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p style="color: var(--gray-600);">No reviews recorded yet for this service provider.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Booking Sidebar Box -->
+    <div id="booking-section">
+        <div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-md); position: sticky; top: 100px;">
+            
+            <h3 style="font-size: 1.4rem; color: var(--dark); margin-bottom: 8px;">Schedule Service</h3>
+            <p style="color: var(--gray-600); font-size: 0.88rem; margin-bottom: 20px;">Select your preferred visit date & available time slot.</p>
+
+            <form action="{{ url_for('customer.book_service', service_id=service.id) }}" method="POST">
+                
+                <div class="form-group">
+                    <label for="booking_date" class="form-label">Service Date *</label>
+                    <input type="date" id="booking_date" name="booking_date" class="form-control" min="{{ today_date }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="time_slot" class="form-label">Available Time Slots *</label>
+                    <select id="time_slot" name="time_slot" class="form-control" required>
+                        <option value="">Select Time Slot</option>
+                        {% for slot in time_slots %}
+                            <option value="{{ slot }}">{{ slot }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="address" class="form-label">Delivery Address *</label>
+                    <textarea id="address" name="address" class="form-control" required>{{ current_user.address }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes" class="form-label">Special Instructions / Notes</label>
+                    <input type="text" id="notes" name="notes" class="form-control" placeholder="e.g. Call 10 mins before arrival">
+                </div>
+
+                <div style="background: var(--gray-100); padding: 14px; border-radius: var(--radius-md); margin-bottom: 20px; font-size: 0.9rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <span>Service Charge:</span>
+                        <strong>₹{{ "%.0f"|format(service.price) }}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-weight: 700; color: var(--dark); border-top: 1px solid var(--gray-300); padding-top: 6px; margin-top: 6px;">
+                        <span>Total Payable:</span>
+                        <span style="color: var(--primary);">₹{{ "%.0f"|format(service.price) }}</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+                    <i class="fa-solid fa-check-circle"></i> Confirm Book Now
+                </button>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

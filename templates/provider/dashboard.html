@@ -1,0 +1,145 @@
+{% extends 'provider/layout.html' %}
+
+{% block title %}Dashboard | FixMate Provider Portal{% endblock %}
+
+{% block provider_content %}
+
+<!-- Welcome Card Banner -->
+<div style="background: linear-gradient(135deg, #064e3b, var(--primary)); color: white; border-radius: var(--radius-lg); padding: 32px; margin-bottom: 30px; box-shadow: var(--shadow-md);">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <div style="display: inline-block; background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 700; color: #a5b4fc; margin-bottom: 10px;">
+                SERVICE PROVIDER PORTAL
+            </div>
+            <h1 style="font-size: 2.2rem; color: white; margin-bottom: 6px;">Welcome, {{ current_user.full_name }}! 🛠️</h1>
+            <p style="color: var(--gray-300); font-size: 1rem;">Manage your incoming bookings, service catalogue, and track earnings.</p>
+        </div>
+        <a href="{{ url_for('provider.services') }}" class="btn btn-primary btn-lg" style="box-shadow: var(--shadow-glow);">
+            <i class="fa-solid fa-plus-circle"></i> Add New Service
+        </a>
+    </div>
+</div>
+
+<!-- Stats Counter Grid (5 Metrics Cards: Today's Bookings, Pending Requests, Completed Jobs, Monthly Earnings, Average Rating) -->
+<div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 30px;">
+    
+    <div class="stat-card" style="padding: 20px 16px;">
+        <div class="stat-icon" style="background: var(--primary-light); color: var(--primary); width: 44px; height: 44px; font-size: 1.2rem;">
+            <i class="fa-solid fa-calendar-day"></i>
+        </div>
+        <div>
+            <div style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">{{ stats.today_bookings }}</div>
+            <div style="font-size: 0.8rem; color: var(--gray-600); font-weight: 600;">Today's Bookings</div>
+        </div>
+    </div>
+
+    <div class="stat-card" style="padding: 20px 16px;">
+        <div class="stat-icon" style="background: var(--accent-light); color: var(--warning); width: 44px; height: 44px; font-size: 1.2rem;">
+            <i class="fa-solid fa-clock"></i>
+        </div>
+        <div>
+            <div style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">{{ stats.pending_requests }}</div>
+            <div style="font-size: 0.8rem; color: var(--gray-600); font-weight: 600;">Pending Requests</div>
+        </div>
+    </div>
+
+    <div class="stat-card" style="padding: 20px 16px;">
+        <div class="stat-icon" style="background: #d1fae5; color: #059669; width: 44px; height: 44px; font-size: 1.2rem;">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <div>
+            <div style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">{{ stats.completed_jobs }}</div>
+            <div style="font-size: 0.8rem; color: var(--gray-600); font-weight: 600;">Completed Jobs</div>
+        </div>
+    </div>
+
+    <div class="stat-card" style="padding: 20px 16px;">
+        <div class="stat-icon" style="background: #e0f2fe; color: #0284c7; width: 44px; height: 44px; font-size: 1.2rem;">
+            <i class="fa-solid fa-indian-rupee-sign"></i>
+        </div>
+        <div>
+            <div style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">₹{{ "%.0f"|format(stats.monthly_earnings) }}</div>
+            <div style="font-size: 0.8rem; color: var(--gray-600); font-weight: 600;">Monthly Earnings</div>
+        </div>
+    </div>
+
+    <div class="stat-card" style="padding: 20px 16px;">
+        <div class="stat-icon" style="background: #fef3c7; color: var(--accent); width: 44px; height: 44px; font-size: 1.2rem;">
+            <i class="fa-solid fa-star"></i>
+        </div>
+        <div>
+            <div style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">{{ stats.rating }}★</div>
+            <div style="font-size: 0.8rem; color: var(--gray-600); font-weight: 600;">Average Rating</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Recent Booking Requests Table -->
+<div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); margin-bottom: 30px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+        <h3 style="font-size: 1.3rem; color: var(--dark); margin: 0;">Recent Incoming Booking Requests</h3>
+        <a href="{{ url_for('provider.booking_requests') }}" style="font-size: 0.88rem; color: var(--primary); font-weight: 700;">View All Requests</a>
+    </div>
+
+    {% if bookings %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Customer</th>
+                        <th>Service Requested</th>
+                        <th>Date & Slot</th>
+                        <th>Delivery Address</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in bookings %}
+                        <tr>
+                            <td><strong>#FIX-{{ b.id }}</strong></td>
+                            <td>
+                                <strong>{{ b.customer.full_name }}</strong><br>
+                                <small style="color: var(--gray-600);"><i class="fa-solid fa-phone"></i> {{ b.customer.mobile }}</small>
+                            </td>
+                            <td>{{ b.service.title }}</td>
+                            <td>{{ b.booking_date }}<br><small style="color: var(--gray-600);">{{ b.time_slot }}</small></td>
+                            <td><small>{{ b.address }}</small></td>
+                            <td><span class="badge-status badge-{{ b.status.lower() }}">{{ b.status }}</span></td>
+                            <td>
+                                {% if b.status == 'Pending' %}
+                                    <div style="display: flex; gap: 6px;">
+                                        <form action="{{ url_for('provider.update_booking_status', booking_id=b.id) }}" method="POST" style="display: inline;">
+                                            <input type="hidden" name="status" value="Confirmed">
+                                            <button type="submit" class="btn btn-success btn-sm"><i class="fa-solid fa-check"></i> Accept</button>
+                                        </form>
+                                        <form action="{{ url_for('provider.update_booking_status', booking_id=b.id) }}" method="POST" style="display: inline;">
+                                            <input type="hidden" name="status" value="Cancelled">
+                                            <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-xmark"></i> Reject</button>
+                                        </form>
+                                    </div>
+                                {% elif b.status == 'Confirmed' %}
+                                    <form action="{{ url_for('provider.update_booking_status', booking_id=b.id) }}" method="POST">
+                                        <input type="hidden" name="status" value="Completed">
+                                        <button type="submit" class="btn btn-primary btn-sm"><i class="fa-solid fa-circle-check"></i> Mark Complete</button>
+                                    </form>
+                                {% else %}
+                                    <span style="font-size: 0.85rem; color: var(--gray-500); font-weight: 600;">No Action Needed</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 40px; color: var(--gray-600);">
+            <i class="fa-solid fa-calendar-xmark" style="font-size: 2.5rem; color: var(--gray-400); margin-bottom: 12px;"></i>
+            <p>No active booking requests currently.</p>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'admin/layout.html' %}
+
+{% block title %}User Management | Admin Control Panel{% endblock %}
+
+{% block admin_content %}
+<div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-sm);">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <div>
+            <h2 style="font-size: 1.6rem; color: var(--dark); margin-bottom: 4px;"><i class="fa-solid fa-users" style="color: var(--primary);"></i> User Account Management</h2>
+            <p style="color: var(--gray-600); font-size: 0.92rem;">Monitor all registered customers, providers, and system administrator accounts.</p>
+        </div>
+
+        <!-- Role Filter Buttons -->
+        <div style="display: flex; gap: 8px;">
+            <a href="{{ url_for('admin.users', role='All') }}" class="btn btn-sm {% if current_filter == 'All' %}btn-primary{% else %}btn-outline{% endif %}">All Users</a>
+            <a href="{{ url_for('admin.users', role='customer') }}" class="btn btn-sm {% if current_filter == 'customer' %}btn-primary{% else %}btn-outline{% endif %}">Customers</a>
+            <a href="{{ url_for('admin.users', role='provider') }}" class="btn btn-sm {% if current_filter == 'provider' %}btn-primary{% else %}btn-outline{% endif %}">Providers</a>
+            <a href="{{ url_for('admin.users', role='admin') }}" class="btn btn-sm {% if current_filter == 'admin' %}btn-primary{% else %}btn-outline{% endif %}">Admins</a>
+        </div>
+    </div>
+
+    {% if users %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Full Name</th>
+                        <th>Email Address</th>
+                        <th>Mobile Number</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                        <tr>
+                            <td><strong>#USR-{{ u.id }}</strong></td>
+                            <td><strong>{{ u.full_name }}</strong></td>
+                            <td>{{ u.email }}</td>
+                            <td>🇮🇳 +91 {{ u.mobile }}</td>
+                            <td>
+                                <span style="text-transform: capitalize; font-weight: 700; font-size: 0.85rem; color: {% if u.role == 'admin' %}var(--primary){% elif u.role == 'provider' %}var(--secondary){% else %}var(--gray-700){% endif %};">
+                                    {{ u.role }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge-status badge-{{ u.status.lower() }}">{{ u.status }}</span>
+                            </td>
+                            <td>
+                                {% if u.id != current_user.id %}
+                                    <form action="{{ url_for('admin.toggle_user_status', user_id=u.id) }}" method="POST" style="display: inline;">
+                                        {% if u.status == 'Approved' %}
+                                            <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-user-slash"></i> Suspend</button>
+                                        {% else %}
+                                            <button type="submit" class="btn btn-secondary btn-sm"><i class="fa-solid fa-user-check"></i> Activate</button>
+                                        {% endif %}
+                                    </form>
+                                {% else %}
+                                    <span style="font-size: 0.8rem; color: var(--gray-400);">Logged In (You)</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 40px; color: var(--gray-600);">
+            <p>No user accounts found for the selected role filter.</p>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

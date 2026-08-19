@@ -1,0 +1,129 @@
+{% extends 'customer/layout.html' %}
+
+{% block title %}Dashboard | FixMate Customer Portal{% endblock %}
+
+{% block customer_content %}
+
+<!-- Welcome Card -->
+<div style="background: linear-gradient(135deg, var(--dark), #064e3b); color: white; border-radius: var(--radius-lg); padding: 32px; margin-bottom: 30px; box-shadow: var(--shadow-md);">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <div style="display: inline-block; background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 700; color: #a5b4fc; margin-bottom: 10px;">
+                CUSTOMER OVERVIEW
+            </div>
+            <h1 style="font-size: 2.2rem; color: white; margin-bottom: 6px;">Welcome back, {{ current_user.full_name }}! 👋</h1>
+            <p style="color: var(--gray-300); font-size: 1rem;">Here is a summary of your service bookings and recent activity.</p>
+        </div>
+        <a href="{{ url_for('customer.search_services') }}" class="btn btn-primary btn-lg" style="box-shadow: var(--shadow-glow);">
+            <i class="fa-solid fa-search"></i> Find Services
+        </a>
+    </div>
+</div>
+
+<!-- Stats Counter Row -->
+<div class="stats-cards-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background: var(--primary-light); color: var(--primary);">
+            <i class="fa-solid fa-list-check"></i>
+        </div>
+        <div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: var(--dark);">{{ stats.total_bookings }}</div>
+            <div style="font-size: 0.88rem; color: var(--gray-600); font-weight: 600;">Total Bookings</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: var(--accent-light); color: var(--warning);">
+            <i class="fa-solid fa-clock"></i>
+        </div>
+        <div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: var(--dark);">{{ stats.pending_bookings }}</div>
+            <div style="font-size: 0.88rem; color: var(--gray-600); font-weight: 600;">Pending Bookings</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #d1fae5; color: #059669;">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: var(--dark);">{{ stats.completed_bookings }}</div>
+            <div style="font-size: 0.88rem; color: var(--gray-600); font-weight: 600;">Completed Bookings</div>
+        </div>
+    </div>
+</div>
+
+<!-- Grid for Recent Bookings & Notifications -->
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+    
+    <!-- Recent Bookings Table -->
+    <div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+            <h3 style="font-size: 1.3rem; color: var(--dark);">Recent Bookings</h3>
+            <a href="{{ url_for('customer.my_bookings') }}" style="font-size: 0.88rem; color: var(--primary); font-weight: 700;">View All</a>
+        </div>
+
+        {% if recent_bookings %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Service</th>
+                            <th>Provider</th>
+                            <th>Date & Slot</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in recent_bookings %}
+                            <tr>
+                                <td><strong>{{ b.service.title }}</strong></td>
+                                <td>{{ b.provider.full_name }}</td>
+                                <td>{{ b.booking_date }}<br><small style="color: var(--gray-600);">{{ b.time_slot }}</small></td>
+                                <td>
+                                    <span class="badge-status badge-{{ b.status.lower() }}">
+                                        {{ b.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 40px; color: var(--gray-600);">
+                <i class="fa-solid fa-calendar-xmark" style="font-size: 2.5rem; color: var(--gray-400); margin-bottom: 12px;"></i>
+                <p>No bookings placed yet.</p>
+                <a href="{{ url_for('customer.search_services') }}" class="btn btn-primary btn-sm" style="margin-top: 14px;">Browse Services</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Recent Notifications -->
+    <div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+            <h3 style="font-size: 1.3rem; color: var(--dark);">Recent Notifications</h3>
+            <a href="{{ url_for('customer.notifications') }}" style="font-size: 0.88rem; color: var(--primary); font-weight: 700;">View All</a>
+        </div>
+
+        {% if notifications %}
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                {% for n in notifications %}
+                    <div style="background: var(--gray-50); border-left: 4px solid var(--primary); padding: 12px 14px; border-radius: var(--radius-sm);">
+                        <strong style="font-size: 0.88rem; color: var(--dark); display: block;">{{ n.title }}</strong>
+                        <p style="font-size: 0.82rem; color: var(--gray-600); margin-top: 4px;">{{ n.message }}</p>
+                        <span style="font-size: 0.72rem; color: var(--gray-400);">{{ n.created_at.strftime('%b %d, %H:%M') }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 30px; color: var(--gray-600);">
+                <i class="fa-solid fa-bell-slash" style="font-size: 2rem; color: var(--gray-400); margin-bottom: 8px;"></i>
+                <p style="font-size: 0.88rem;">No recent notifications.</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

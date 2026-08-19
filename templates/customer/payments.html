@@ -1,0 +1,86 @@
+{% extends 'customer/layout.html' %}
+
+{% block title %}Payments & Receipts | FixMate Customer Portal{% endblock %}
+
+{% block customer_content %}
+<div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-sm); margin-bottom: 30px;">
+    <h2 style="font-size: 1.6rem; color: var(--dark); margin-bottom: 6px;"><i class="fa-solid fa-credit-card"></i> Payments & Billing Receipts</h2>
+    <p style="color: var(--gray-600); font-size: 0.92rem;">Review payment transactions, cash-on-service invoices, and completed receipts.</p>
+</div>
+
+<!-- Pending / Payable Payments Block -->
+<div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); margin-bottom: 30px;">
+    <h3 style="font-size: 1.2rem; color: var(--warning); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-clock"></i> Pending Payment Invoices
+    </h3>
+    {% if pending_payments %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Invoice ID</th>
+                        <th>Service</th>
+                        <th>Provider</th>
+                        <th>Amount</th>
+                        <th>Payment Mode</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in pending_payments %}
+                        <tr>
+                            <td><strong>#INV-{{ p.id }}</strong></td>
+                            <td>{{ p.service.title }}</td>
+                            <td>{{ p.provider.full_name }}</td>
+                            <td><strong>₹{{ "%.0f"|format(p.total_amount) }}</strong></td>
+                            <td><span style="font-weight: 600; color: var(--gray-700);">Cash On Service / Sandbox</span></td>
+                            <td>
+                                <span class="badge-status badge-pending">Payable at Service</span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p style="color: var(--gray-600); font-size: 0.9rem;">No pending payment invoices outstanding.</p>
+    {% endif %}
+</div>
+
+<!-- Completed Payment Receipts -->
+<div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm);">
+    <h3 style="font-size: 1.2rem; color: var(--success); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-circle-check"></i> Completed Payment History
+    </h3>
+    {% if completed_payments %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Receipt ID</th>
+                        <th>Service Title</th>
+                        <th>Provider</th>
+                        <th>Date Paid</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cp in completed_payments %}
+                        <tr>
+                            <td><strong>#REC-{{ cp.id }}</strong></td>
+                            <td>{{ cp.service.title }}</td>
+                            <td>{{ cp.provider.full_name }}</td>
+                            <td>{{ cp.booking_date }}</td>
+                            <td><strong>₹{{ "%.0f"|format(cp.total_amount) }}</strong></td>
+                            <td><span class="badge-status badge-completed">Paid ✓</span></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p style="color: var(--gray-600); font-size: 0.9rem;">No payment history recorded yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

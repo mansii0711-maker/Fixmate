@@ -1,0 +1,150 @@
+{% extends 'admin/layout.html' %}
+
+{% block title %}Dashboard Overview | Admin Control Panel{% endblock %}
+
+{% block admin_content %}
+
+<!-- Admin Header Welcome Banner -->
+<div style="background: linear-gradient(135deg, var(--dark), #064e3b); color: white; border-radius: var(--radius-lg); padding: 32px; margin-bottom: 30px; box-shadow: var(--shadow-md);">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <div style="display: inline-block; background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 700; color: #a5b4fc; margin-bottom: 10px;">
+                SYSTEM ADMINISTRATION
+            </div>
+            <h1 style="font-size: 2.2rem; color: white; margin-bottom: 6px;">FixMate Platform Control Panel</h1>
+            <p style="color: var(--gray-300); font-size: 1rem;">Provider verification oversight, metric monitoring, and system administration.</p>
+        </div>
+        <a href="{{ url_for('admin.providers') }}" class="btn btn-primary btn-lg" style="box-shadow: var(--shadow-glow);">
+            <i class="fa-solid fa-user-clock"></i> Verification Queue ({{ stats.pending_approvals }})
+        </a>
+    </div>
+</div>
+
+<!-- Platform Metrics Grid -->
+<div class="stats-cards-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background: var(--accent-light); color: var(--warning);">
+            <i class="fa-solid fa-user-clock"></i>
+        </div>
+        <div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: var(--dark);">{{ stats.pending_approvals }}</div>
+            <div style="font-size: 0.85rem; color: var(--gray-600); font-weight: 600;">Pending Approvals</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #d1fae5; color: #059669;">
+            <i class="fa-solid fa-user-check"></i>
+        </div>
+        <div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: var(--dark);">{{ stats.approved_providers }}</div>
+            <div style="font-size: 0.85rem; color: var(--gray-600); font-weight: 600;">Verified Providers</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #e0f2fe; color: #0284c7;">
+            <i class="fa-solid fa-users"></i>
+        </div>
+        <div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: var(--dark);">{{ stats.total_customers }}</div>
+            <div style="font-size: 0.85rem; color: var(--gray-600); font-weight: 600;">Customers</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon" style="background: var(--primary-light); color: var(--primary);">
+            <i class="fa-solid fa-indian-rupee-sign"></i>
+        </div>
+        <div>
+            <div style="font-size: 1.8rem; font-weight: 800; color: var(--dark);">₹{{ "%.0f"|format(stats.platform_revenue) }}</div>
+            <div style="font-size: 0.85rem; color: var(--gray-600); font-weight: 600;">Total Platform Volume</div>
+        </div>
+    </div>
+</div>
+
+<!-- Grid for Recent Pending Approvals & Bookings -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 10px;">
+    
+    <!-- Pending Providers Preview -->
+    <div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+            <h3 style="font-size: 1.3rem; color: var(--dark); display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-user-clock" style="color: var(--warning);"></i> Pending Verification Queue
+            </h3>
+            <a href="{{ url_for('admin.providers') }}" style="font-size: 0.88rem; color: var(--primary); font-weight: 700;">View All</a>
+        </div>
+
+        {% if pending_providers %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Provider</th>
+                            <th>Category</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pp in pending_providers[:4] %}
+                            <tr>
+                                <td><strong>{{ pp.user.full_name }}</strong><br><small style="color: var(--gray-600);">{{ pp.user.email }}</small></td>
+                                <td>{{ pp.category.name if pp.category else 'N/A' }}</td>
+                                <td>
+                                    <form action="{{ url_for('admin.approve_provider', user_id=pp.user.id) }}" method="POST" style="display: inline;">
+                                        <button type="submit" class="btn btn-secondary btn-sm"><i class="fa-solid fa-check"></i> Approve</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 30px; color: var(--gray-600);">
+                <i class="fa-solid fa-circle-check" style="font-size: 2rem; color: var(--success); margin-bottom: 8px;"></i>
+                <p style="font-size: 0.9rem;">All provider verification requests are up to date!</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Recent Platform Bookings -->
+    <div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+            <h3 style="font-size: 1.3rem; color: var(--dark); display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-chart-line" style="color: var(--primary);"></i> Recent Platform Bookings
+            </h3>
+            <a href="{{ url_for('admin.bookings') }}" style="font-size: 0.88rem; color: var(--primary); font-weight: 700;">View Log</a>
+        </div>
+
+        {% if recent_bookings %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Service</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in recent_bookings %}
+                            <tr>
+                                <td><strong>{{ b.service.title }}</strong><br><small style="color: var(--gray-600);">Customer: {{ b.customer.full_name }}</small></td>
+                                <td><strong>₹{{ "%.0f"|format(b.total_amount) }}</strong></td>
+                                <td><span class="badge-status badge-{{ b.status.lower() }}">{{ b.status }}</span></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 30px; color: var(--gray-600);">
+                <p>No bookings placed on the platform yet.</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

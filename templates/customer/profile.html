@@ -1,0 +1,60 @@
+{% extends 'customer/layout.html' %}
+
+{% block title %}My Profile | FixMate Customer Portal{% endblock %}
+
+{% block customer_content %}
+<div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-sm); max-width: 700px;">
+    <h2 style="font-size: 1.6rem; color: var(--dark); margin-bottom: 6px;">My Profile Settings</h2>
+    <p style="color: var(--gray-600); font-size: 0.92rem; margin-bottom: 28px;">Manage your contact information, delivery address, and security details.</p>
+
+    <form action="{{ url_for('customer.profile') }}" method="POST">
+        
+        <div class="form-group">
+            <label for="full_name" class="form-label">Full Name *</label>
+            <input type="text" id="full_name" name="full_name" class="form-control" value="{{ current_user.full_name }}" pattern="^[A-Za-z\s]{3,50}$" required>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address (Read-only)</label>
+                <input type="email" id="email" class="form-control" value="{{ current_user.email }}" readonly style="background: var(--gray-100);">
+            </div>
+
+            <div class="form-group">
+                <label for="mobile" class="form-label">Indian Mobile Number (+91) *</label>
+                <div style="display: flex; gap: 8px;">
+                    <span style="background: var(--gray-100); border: 1px solid var(--gray-300); border-radius: var(--radius-md); padding: 12px 14px; font-weight: 700; color: var(--gray-700); font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
+                        🇮🇳 +91
+                    </span>
+                    <input type="tel" id="mobile" name="mobile" class="form-control" value="{{ current_user.mobile }}" pattern="[6-9][0-9]{9}" maxlength="10" minlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '');" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="address" class="form-label">Primary Service Delivery Address *</label>
+            <textarea id="address" name="address" class="form-control" minlength="10" required>{{ current_user.address }}</textarea>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid var(--gray-200); margin: 30px 0;">
+
+        <h3 style="font-size: 1.2rem; color: var(--dark); margin-bottom: 16px;">Security & Password Update</h3>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="new_password" class="form-label">New Password (Optional)</label>
+                <input type="password" id="new_password" name="new_password" class="form-control" placeholder="Leave empty to keep current" minlength="6">
+            </div>
+
+            <div class="form-group">
+                <label for="confirm_password" class="form-label">Confirm New Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Re-enter new password" minlength="6">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" style="margin-top: 10px;">
+            <i class="fa-solid fa-floppy-disk"></i> Save Profile Changes
+        </button>
+    </form>
+</div>
+{% endblock %}
