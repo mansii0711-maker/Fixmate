@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Verify OTP | FixMate Password Reset{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2><i class="fa-solid fa-shield-halved" style="color: #a5b4fc; margin-right: 8px;"></i>Verify Your OTP</h2>
+            <p>A 6-digit code has been sent to <strong>{{ masked_email }}</strong>. Enter it below to verify your identity.</p>
+        </div>
+
+        <div class="auth-body">
+
+            <!-- Countdown Timer -->
+            <div id="timer-box" style="text-align: center; margin-bottom: 24px;">
+                <div style="display: inline-flex; align-items: center; gap: 10px; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-full); padding: 10px 20px; font-size: 0.9rem; color: var(--gray-700);">
+                    <i class="fa-solid fa-clock" style="color: var(--primary);"></i>
+                    OTP expires in &nbsp;<strong id="countdown" style="color: var(--primary); font-size: 1rem; font-family: 'Courier New', monospace; min-width: 44px; display: inline-block;">--:--</strong>
+                </div>
+                <div id="expired-msg" style="display: none; color: #ef4444; font-weight: 700; font-size: 0.9rem; margin-top: 8px;">
+                    <i class="fa-solid fa-circle-exclamation"></i> OTP has expired. Please request a new one.
+                </div>
+            </div>
+
+            <!-- OTP Entry Form -->
+            <form action="{{ url_for('auth.verify_otp') }}" method="POST" id="otp-form">
+                <div class="form-group" style="text-align: center;">
+                    <label for="otp" class="form-label" style="text-align: left; display: block;">Enter 6-Digit OTP *</label>
+                    <input type="text" id="otp" name="otp" class="form-control"
+                           placeholder="e.g. 482731"
+                           maxlength="6" minlength="6"
+                           pattern="[0-9]{6}"
+                           inputmode="numeric"
+                           autocomplete="one-time-code"
+                           style="font-size: 2rem; letter-spacing: 8px; text-align: center; font-family: 'Courier New', monospace; font-weight: 700;"
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                           title="Please enter the 6-digit OTP sent to your email."
+                           required autofocus>
+                    <small class="form-text" style="color: var(--gray-600); font-size: 0.78rem; margin-top: 6px; display: block;">
+                        Check your inbox (and spam/junk folder) for the OTP email from FixMate.
+                    </small>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg" id="verify-btn" style="width: 100%; margin-top: 8px;">
+                    <i class="fa-solid fa-circle-check"></i> Verify OTP
+                </button>
+            </form>
+
+            <!-- Resend OTP Form -->
+            <form action="{{ url_for('auth.resend_otp') }}" method="POST" style="margin-top: 16px; text-align: center;">
+                <button type="submit" id="resend-btn" class="btn btn-outline"
+                        style="width: 100%; font-size: 0.9rem;"
+                        title="Resend OTP (available after 60-second cooldown)">
+                    <i class="fa-solid fa-rotate-right"></i> Resend OTP
+                </button>
+            </form>
+
+            <div style="text-align: center; margin-top: 20px; font-size: 0.9rem; color: var(--gray-600);">
+                <a href="{{ url_for('auth.forgot_password') }}" style="color: var(--primary); font-weight: 700;">
+                    <i class="fa-solid fa-arrow-left"></i> Use a different email
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    // ── Countdown timer ──────────────────────────────────────────────────────
+    var secondsLeft = {{ seconds_left | int }};
+    var countdownEl = document.getElementById('countdown');
+    var expiredMsg  = document.getElementById('expired-msg');
+    var verifyBtn   = document.getElementById('verify-btn');
+    var otpInput    = document.getElementById('otp');
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function tick() {
+        if (secondsLeft <= 0) {
+            countdownEl.textContent = '00:00';
+            countdownEl.style.color = '#ef4444';
+            expiredMsg.style.display = 'block';
+            verifyBtn.disabled = true;
+            otpInput.disabled  = true;
+            verifyBtn.innerHTML = '<i class="fa-solid fa-clock"></i> OTP Expired';
+            return;
+        }
+        var m = Math.floor(secondsLeft / 60);
+        var s = secondsLeft % 60;
+        countdownEl.textContent = pad(m) + ':' + pad(s);
+        if (secondsLeft <= 60) countdownEl.style.color = '#ef4444';
+        secondsLeft--;
+        setTimeout(tick, 1000);
+    }
+
+    tick();
+
+    // ── Disable verify on submit ──────────────────────────────────────────────
+    document.getElementById('otp-form').addEventListener('submit', function () {
+        verifyBtn.disabled = true;
+        verifyBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying...';
+    });
+
+    // ── Auto-submit when 6 digits are entered ─────────────────────────────────
+    otpInput.addEventListener('input', function () {
+        if (this.value.length === 6 && secondsLeft > 0) {
+            document.getElementById('otp-form').submit();
+        }
+    });
+})();
+</script>
+{% endblock %}

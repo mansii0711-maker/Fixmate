@@ -1,0 +1,105 @@
+{% extends 'provider/layout.html' %}
+
+{% block title %}My Profile | FixMate Provider Portal{% endblock %}
+
+{% block provider_content %}
+<div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-sm); max-width: 800px;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <div>
+            <h2 style="font-size: 1.6rem; color: var(--dark); margin-bottom: 4px;"><i class="fa-solid fa-id-card" style="color: var(--primary);"></i> Service Provider Profile</h2>
+            <p style="color: var(--gray-600); font-size: 0.92rem;">Update your professional bio, qualifications, photo, and operating areas.</p>
+        </div>
+        <span class="badge-status badge-approved" style="padding: 6px 14px; font-weight: 700;">
+            <i class="fa-solid fa-user-check"></i> Account Verified
+        </span>
+    </div>
+
+    <form action="{{ url_for('provider.profile') }}" method="POST" enctype="multipart/form-data">
+        
+        <!-- Profile Photo Row -->
+        <div style="display: flex; gap: 24px; align-items: center; background: var(--gray-50); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--gray-200); margin-bottom: 24px;">
+            <div>
+                {% if provider_prof.photo %}
+                    <img src="{{ url_for('static', filename='uploads/documents/' + provider_prof.photo) }}" 
+                         alt="Provider Avatar" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                         style="width: 84px; height: 84px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); box-shadow: var(--shadow-sm);">
+                    <div style="display: none; width: 84px; height: 84px; border-radius: 50%; background: var(--primary); color: white; font-weight: 800; font-size: 2rem; align-items: center; justify-content: center;">
+                        {{ current_user.full_name[0] }}
+                    </div>
+                {% else %}
+                    <div style="width: 84px; height: 84px; border-radius: 50%; background: var(--primary); color: white; font-weight: 800; font-size: 2rem; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm);">
+                        {{ current_user.full_name[0] }}
+                    </div>
+                {% endif %}
+            </div>
+            <div>
+                <label for="photo" class="form-label" style="font-weight: 700;">Update Profile Photo</label>
+                <input type="file" id="photo" name="photo" class="form-control" accept="image/*">
+                <small style="color: var(--gray-600); font-size: 0.78rem;">Allowed formats: PNG, JPG, JPEG, WEBP</small>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="full_name" class="form-label">Full Name *</label>
+                <input type="text" id="full_name" name="full_name" class="form-control" value="{{ current_user.full_name }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address (Read-only)</label>
+                <input type="email" id="email" class="form-control" value="{{ current_user.email }}" readonly style="background: var(--gray-100);">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="mobile" class="form-label">Mobile Number (+91) *</label>
+                <input type="tel" id="mobile" name="mobile" class="form-control" value="{{ current_user.mobile }}" maxlength="10" minlength="10" required>
+            </div>
+
+            <div class="form-group">
+                <label for="category_id" class="form-label">Primary Service Category *</label>
+                <select id="category_id" name="category_id" class="form-control" required>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if provider_prof.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="experience" class="form-label">Experience (Years) *</label>
+                <input type="number" id="experience" name="experience" min="0" max="50" class="form-control" value="{{ provider_prof.experience }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="qualification" class="form-label">Qualification / Certification *</label>
+                <input type="text" id="qualification" name="qualification" class="form-control" value="{{ provider_prof.qualification }}" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="operating_area" class="form-label">Operating Localities / Areas *</label>
+            <input type="text" id="operating_area" name="operating_area" class="form-control" value="{{ provider_prof.operating_area }}" placeholder="e.g. Dadar, Bandra, Andheri" required>
+        </div>
+
+        <div class="form-group">
+            <label for="address" class="form-label">Business / Workshop Address *</label>
+            <textarea id="address" name="address" class="form-control" rows="2" required>{{ current_user.address }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="bio" class="form-label">Professional Bio / About Me</label>
+            <textarea id="bio" name="bio" class="form-control" rows="3" placeholder="Write a short introduction about your services and experience...">{{ provider_prof.bio or '' }}</textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg" style="margin-top: 10px;">
+            <i class="fa-solid fa-floppy-disk"></i> Save Profile Changes
+        </button>
+    </form>
+
+</div>
+{% endblock %}

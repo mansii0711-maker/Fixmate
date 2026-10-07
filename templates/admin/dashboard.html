@@ -1,0 +1,566 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Panel | FixMate Oversight & Management{% endblock %}
+
+{% block content %}
+<div class="dashboard-header" style="background: linear-gradient(135deg, var(--dark), #1e1b4b); color: white; padding: 30px 0;">
+    <div class="container">
+        <div class="dashboard-title-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+                <h1 style="font-size: 2rem; color: white; margin: 0 0 4px;">FixMate Control Panel & Administration</h1>
+                <p style="color: var(--gray-300); margin: 0;">System management, provider verification queue, financial oversight, and customer controls.</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span class="badge-status badge-approved" style="font-size: 0.9rem; padding: 8px 16px; background: #059669; color: white;">
+                    <i class="fa-solid fa-shield-halved"></i> Super Administrator
+                </span>
+            </div>
+        </div>
+
+        <!-- Section Navigation Quick Bar -->
+        <div style="display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap;">
+            <a href="#pending-approvals-section" class="btn btn-sm btn-outline" style="color: white; border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.08);"><i class="fa-solid fa-clock-rotate-left"></i> Pending Approvals</a>
+            <a href="#active-providers-section" class="btn btn-sm btn-outline" style="color: white; border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.08);"><i class="fa-solid fa-user-check"></i> Active Providers</a>
+            <a href="#customers-section" class="btn btn-sm btn-outline" style="color: white; border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.08);"><i class="fa-solid fa-users"></i> Customers</a>
+            <a href="#services-section" class="btn btn-sm btn-outline" style="color: white; border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.08);"><i class="fa-solid fa-screwdriver-wrench"></i> Services</a>
+            <a href="#revenue-section" class="btn btn-sm btn-outline" style="color: white; border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.08);"><i class="fa-solid fa-chart-line"></i> Revenue</a>
+            <a href="#online-payments-section" class="btn btn-sm btn-outline" style="color: white; border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.08);"><i class="fa-solid fa-shield-halved"></i> Razorpay Paid</a>
+            <a href="#cod-bookings-section" class="btn btn-sm btn-outline" style="color: white; border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.08);"><i class="fa-solid fa-hand-holding-dollar"></i> COD Bookings</a>
+        </div>
+    </div>
+</div>
+
+<div class="container" style="padding-bottom: 60px; padding-top: 30px;">
+    
+    <!-- 1. Interactive Platform Metrics Grid (Clickable Cards) -->
+    <div class="stats-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 35px;">
+        
+        <!-- CARD 1: PENDING APPROVALS -->
+        <a href="#pending-approvals-section" style="text-decoration: none; color: inherit;">
+            <div class="stat-card" style="transition: transform 0.2s; cursor: pointer; border-left: 4px solid var(--warning);" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div class="stat-icon" style="background: var(--accent-light); color: var(--warning);">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+                <div>
+                    <div style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">{{ stats.pending_approvals }}</div>
+                    <div style="font-size: 0.82rem; color: var(--gray-600); font-weight: 600;">Pending Approvals</div>
+                </div>
+            </div>
+        </a>
+
+        <!-- CARD 2: ACTIVE PROVIDERS -->
+        <a href="#active-providers-section" style="text-decoration: none; color: inherit;">
+            <div class="stat-card" style="transition: transform 0.2s; cursor: pointer; border-left: 4px solid #059669;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div class="stat-icon" style="background: #d1fae5; color: #059669;">
+                    <i class="fa-solid fa-user-check"></i>
+                </div>
+                <div>
+                    <div style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">{{ stats.approved_providers }}</div>
+                    <div style="font-size: 0.82rem; color: var(--gray-600); font-weight: 600;">Active Providers</div>
+                </div>
+            </div>
+        </a>
+
+        <!-- CARD 3: TOTAL CUSTOMERS -->
+        <a href="#customers-section" style="text-decoration: none; color: inherit;">
+            <div class="stat-card" style="transition: transform 0.2s; cursor: pointer; border-left: 4px solid #0284c7;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div class="stat-icon" style="background: #e0f2fe; color: #0284c7;">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <div>
+                    <div style="font-size: 1.6rem; font-weight: 800; color: var(--dark);">{{ stats.total_customers }}</div>
+                    <div style="font-size: 0.82rem; color: var(--gray-600); font-weight: 600;">Total Customers</div>
+                </div>
+            </div>
+        </a>
+
+        <!-- CARD 4: PLATFORM REVENUE -->
+        <a href="#revenue-section" style="text-decoration: none; color: inherit;">
+            <div class="stat-card" style="transition: transform 0.2s; cursor: pointer; border-left: 4px solid var(--primary);" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div class="stat-icon" style="background: var(--primary-light); color: var(--primary);">
+                    <i class="fa-solid fa-indian-rupee-sign"></i>
+                </div>
+                <div>
+                    <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">₹{{ "%.0f"|format(stats.platform_revenue) }}</div>
+                    <div style="font-size: 0.82rem; color: var(--gray-600); font-weight: 600;">Platform Revenue</div>
+                </div>
+            </div>
+        </a>
+
+        <!-- CARD 5: RAZORPAY PAID -->
+        <a href="#online-payments-section" style="text-decoration: none; color: inherit;">
+            <div class="stat-card" style="transition: transform 0.2s; cursor: pointer; border-left: 4px solid #2563eb;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div class="stat-icon" style="background: #dbeafe; color: #2563eb;">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <div style="font-size: 1.4rem; font-weight: 800; color: #2563eb;">{{ stats.online_payments_count }} <span style="font-size: 0.85rem; color: var(--gray-600);">(₹{{ "%.0f"|format(stats.online_payments_sum) }})</span></div>
+                    <div style="font-size: 0.82rem; color: var(--gray-600); font-weight: 600;">Razorpay Paid</div>
+                </div>
+            </div>
+        </a>
+
+        <!-- CARD 6: COD BOOKINGS -->
+        <a href="#cod-bookings-section" style="text-decoration: none; color: inherit;">
+            <div class="stat-card" style="transition: transform 0.2s; cursor: pointer; border-left: 4px solid #d97706;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+                <div class="stat-icon" style="background: #fef3c7; color: #d97706;">
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                </div>
+                <div>
+                    <div style="font-size: 1.4rem; font-weight: 800; color: #d97706;">{{ stats.cod_bookings_count }} <span style="font-size: 0.85rem; color: var(--gray-600);">(₹{{ "%.0f"|format(stats.cod_bookings_sum) }})</span></div>
+                    <div style="font-size: 0.82rem; color: var(--gray-600); font-weight: 600;">COD Bookings</div>
+                </div>
+            </div>
+        </a>
+
+    </div>
+
+
+    <!-- 2. PENDING PROVIDER APPROVALS SECTION -->
+    <div id="pending-approvals-section" style="background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--gray-200); padding: 28px; box-shadow: var(--shadow-sm); margin-bottom: 40px; scroll-margin-top: 100px;">
+        <h3 style="font-size: 1.3rem; margin-bottom: 8px; color: var(--dark); display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-user-clock" style="color: var(--warning);"></i> Pending Provider Verification Queue
+        </h3>
+        <p style="color: var(--gray-600); font-size: 0.9rem; margin-bottom: 20px;">Review trade qualification credentials and uploaded background verification documents before approving accounts.</p>
+
+        {% if pending_providers %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Provider Name</th>
+                            <th>Contact Info</th>
+                            <th>Category & Exp</th>
+                            <th>Qualification</th>
+                            <th>Operating Area</th>
+                            <th>Document</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pp in pending_providers %}
+                            <tr>
+                                <td><strong>{{ pp.user.full_name }}</strong></td>
+                                <td>{{ pp.user.email }}<br><small style="color: var(--gray-600);"><i class="fa-solid fa-phone"></i> {{ pp.user.mobile }}</small></td>
+                                <td>{{ pp.category.name if pp.category else 'N/A' }}<br><small style="color: var(--gray-600);">{{ pp.experience }} Yrs Exp</small></td>
+                                <td>{{ pp.qualification }}</td>
+                                <td>{{ pp.operating_area }}</td>
+                                <td>
+                                    {% if pp.verification_doc %}
+                                        <a href="{{ url_for('static', filename='uploads/documents/' + pp.verification_doc) }}" target="_blank" style="color: var(--primary); font-weight: 700; text-decoration: none;">
+                                            <i class="fa-solid fa-file-pdf"></i> View Doc
+                                        </a>
+                                    {% else %}
+                                        <span style="color: var(--gray-400);">No Doc</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 6px;">
+                                        <form action="{{ url_for('admin.approve_provider', user_id=pp.user.id) }}" method="POST" style="display: inline;">
+                                            <button type="submit" class="btn btn-secondary btn-sm" style="background:#059669; color:white; border:none;"><i class="fa-solid fa-check"></i> Approve</button>
+                                        </form>
+                                        <form action="{{ url_for('admin.reject_provider', user_id=pp.user.id) }}" method="POST" style="display: inline;">
+                                            <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-xmark"></i> Reject</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 30px; color: var(--gray-600); background: var(--gray-50); border-radius: var(--radius-md);">
+                <i class="fa-solid fa-circle-check" style="font-size: 2rem; color: var(--success); margin-bottom: 8px;"></i>
+                <p style="margin: 0;">No pending provider applications. All registrations are up to date!</p>
+            </div>
+        {% endif %}
+    </div>
+
+
+    <!-- 3. VERIFIED ACTIVE PROVIDERS SECTION -->
+    <div id="active-providers-section" style="background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--gray-200); padding: 28px; box-shadow: var(--shadow-sm); margin-bottom: 40px; scroll-margin-top: 100px;">
+        <h3 style="font-size: 1.3rem; margin-bottom: 8px; color: var(--dark); display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-user-check" style="color: #059669;"></i> Verified Active Service Providers
+        </h3>
+        <p style="color: var(--gray-600); font-size: 0.9rem; margin-bottom: 20px;">Manage active technicians, view customer rating history, or suspend/delete provider accounts.</p>
+
+        {% if approved_providers %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Provider Name</th>
+                            <th>Contact Email / Phone</th>
+                            <th>Category</th>
+                            <th>Operating Area</th>
+                            <th>Rating & Reviews</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ap in approved_providers %}
+                            <tr>
+                                <td><strong>{{ ap.user.full_name }}</strong></td>
+                                <td>{{ ap.user.email }}<br><small style="color: var(--gray-600);"><i class="fa-solid fa-phone"></i> {{ ap.user.mobile }}</small></td>
+                                <td><span style="color: var(--primary); font-weight: 600;">{{ ap.category.name if ap.category else 'General' }}</span></td>
+                                <td>{{ ap.operating_area }}</td>
+                                <td><strong style="color: #d97706;">★ {{ ap.rating }}</strong> <small style="color: var(--gray-600);">({{ ap.total_reviews }} reviews)</small></td>
+                                <td><span class="badge-status badge-approved" style="background:#d1fae5; color:#065f46;">{{ ap.user.status }}</span></td>
+                                <td>
+                                    <div style="display: flex; gap: 6px;">
+                                        <form action="{{ url_for('admin.toggle_provider_status', user_id=ap.user.id) }}" method="POST" style="display: inline;">
+                                            <button type="submit" class="btn btn-warning btn-sm" style="padding: 4px 8px; font-size: 0.78rem;">
+                                                <i class="fa-solid fa-user-slash"></i> Suspend
+                                            </button>
+                                        </form>
+                                        <form action="{{ url_for('admin.delete_provider', user_id=ap.user.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this provider account?');">
+                                            <button type="submit" class="btn btn-danger btn-sm" style="padding: 4px 8px; font-size: 0.78rem;">
+                                                <i class="fa-solid fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p style="color: var(--gray-600);">No active approved providers found.</p>
+        {% endif %}
+    </div>
+
+
+    <!-- 4. REGISTERED CUSTOMERS MANAGEMENT SECTION -->
+    <div id="customers-section" style="background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--gray-200); padding: 28px; box-shadow: var(--shadow-sm); margin-bottom: 40px; scroll-margin-top: 100px;">
+        <h3 style="font-size: 1.3rem; margin-bottom: 8px; color: var(--dark); display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-users" style="color: #0284c7;"></i> Registered Customers Management
+        </h3>
+        <p style="color: var(--gray-600); font-size: 0.9rem; margin-bottom: 20px;">View customer accounts, delivery addresses, and manage account statuses.</p>
+
+        {% if customers %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Customer ID</th>
+                            <th>Full Name</th>
+                            <th>Email Address</th>
+                            <th>Mobile</th>
+                            <th>Registered Address</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in customers %}
+                            <tr>
+                                <td><strong>#CUST-{{ c.id }}</strong></td>
+                                <td><strong>{{ c.full_name }}</strong></td>
+                                <td>{{ c.email }}</td>
+                                <td>{{ c.mobile }}</td>
+                                <td><small style="color: var(--gray-700);">{{ c.address }}</small></td>
+                                <td>
+                                    {% if c.status == 'Approved' %}
+                                        <span class="badge-status badge-approved" style="background:#e0f2fe; color:#0369a1;">Active</span>
+                                    {% else %}
+                                        <span class="badge-status badge-pending" style="background:#fee2e2; color:#dc2626;">{{ c.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 6px;">
+                                        <form action="{{ url_for('admin.toggle_customer_status', user_id=c.id) }}" method="POST" style="display: inline;">
+                                            <button type="submit" class="btn btn-outline btn-sm" style="padding: 4px 8px; font-size: 0.78rem;">
+                                                {% if c.status == 'Approved' %}<i class="fa-solid fa-ban"></i> Suspend{% else %}<i class="fa-solid fa-check"></i> Activate{% endif %}
+                                            </button>
+                                        </form>
+                                        <form action="{{ url_for('admin.delete_customer', user_id=c.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete customer {{ c.full_name }}?');">
+                                            <button type="submit" class="btn btn-danger btn-sm" style="padding: 4px 8px; font-size: 0.78rem;">
+                                                <i class="fa-solid fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p style="color: var(--gray-600);">No registered customers found.</p>
+        {% endif %}
+    </div>
+
+
+    <!-- 5. PLATFORM SERVICES MANAGEMENT SECTION -->
+    <div id="services-section" style="background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--gray-200); padding: 28px; box-shadow: var(--shadow-sm); margin-bottom: 40px; scroll-margin-top: 100px;">
+        <h3 style="font-size: 1.3rem; margin-bottom: 8px; color: var(--dark); display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-screwdriver-wrench" style="color: var(--primary);"></i> Platform Service Listings Management
+        </h3>
+        <p style="color: var(--gray-600); font-size: 0.9rem; margin-bottom: 20px;">Review service listings posted by technicians, toggle visibility, or delete listings.</p>
+
+        {% if services %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Service ID</th>
+                            <th>Service Title</th>
+                            <th>Provider</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Price Type</th>
+                            <th>Visibility</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in services %}
+                            <tr>
+                                <td><strong>#SERV-{{ s.id }}</strong></td>
+                                <td><strong>{{ s.title }}</strong></td>
+                                <td>{{ s.provider.user.full_name }}</td>
+                                <td><span style="color: var(--primary); font-weight: 600;"><i class="fa-solid {{ s.category.icon }}"></i> {{ s.category.name }}</span></td>
+                                <td><strong>₹{{ "%.0f"|format(s.price) }}</strong></td>
+                                <td>{{ s.price_type }}</td>
+                                <td>
+                                    {% if s.is_active %}
+                                        <span class="badge-status badge-approved" style="background:#d1fae5; color:#065f46;">Active</span>
+                                    {% else %}
+                                        <span class="badge-status badge-pending">Paused</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 6px;">
+                                        <form action="{{ url_for('admin.toggle_service_status', service_id=s.id) }}" method="POST" style="display: inline;">
+                                            <button type="submit" class="btn btn-outline btn-sm" style="padding: 4px 8px; font-size: 0.78rem;">
+                                                {% if s.is_active %}<i class="fa-solid fa-pause"></i> Pause{% else %}<i class="fa-solid fa-play"></i> Activate{% endif %}
+                                            </button>
+                                        </form>
+                                        <form action="{{ url_for('admin.delete_service', service_id=s.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Delete service listing {{ s.title }}?');">
+                                            <button type="submit" class="btn btn-danger btn-sm" style="padding: 4px 8px; font-size: 0.78rem;">
+                                                <i class="fa-solid fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p style="color: var(--gray-600);">No active service listings found.</p>
+        {% endif %}
+    </div>
+
+
+    <!-- 6. PLATFORM REVENUE & FINANCIAL OVERVIEW SECTION -->
+    <div id="revenue-section" style="background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--gray-200); padding: 28px; box-shadow: var(--shadow-sm); margin-bottom: 40px; scroll-margin-top: 100px;">
+        <h3 style="font-size: 1.3rem; margin-bottom: 8px; color: var(--dark); display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-chart-line" style="color: var(--primary);"></i> Platform Revenue & Financial Overview
+        </h3>
+        <p style="color: var(--gray-600); font-size: 0.9rem; margin-bottom: 20px;">Breakdown of gross transaction volume across online payment gateways and cash-on-service bookings.</p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 24px;">
+            <div style="background: linear-gradient(135deg, #1e1b4b, #312e81); color: white; padding: 20px; border-radius: var(--radius-md);">
+                <div style="font-size: 0.85rem; color: #a5b4fc; font-weight: 600; text-transform: uppercase;">Total Verified Revenue</div>
+                <div style="font-size: 2rem; font-weight: 800; margin-top: 4px;">₹{{ "%.0f"|format(stats.platform_revenue) }}</div>
+                <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 4px;">Completed & Paid Transactions</div>
+            </div>
+
+            <div style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e3a8a; padding: 20px; border-radius: var(--radius-md);">
+                <div style="font-size: 0.85rem; color: #2563eb; font-weight: 600; text-transform: uppercase;"><i class="fa-solid fa-shield-halved"></i> Online Razorpay Paid</div>
+                <div style="font-size: 2rem; font-weight: 800; color: #1d4ed8; margin-top: 4px;">₹{{ "%.0f"|format(stats.online_payments_sum) }}</div>
+                <div style="font-size: 0.8rem; color: #3b82f6; margin-top: 4px;">{{ stats.online_payments_count }} Verified Digital Payments</div>
+            </div>
+
+            <div style="background: #fffbe6; border: 1px solid #ffe58f; color: #78350f; padding: 20px; border-radius: var(--radius-md);">
+                <div style="font-size: 0.85rem; color: #d97706; font-weight: 600; text-transform: uppercase;"><i class="fa-solid fa-hand-holding-dollar"></i> Cash on Service (COD)</div>
+                <div style="font-size: 2rem; font-weight: 800; color: #b45309; margin-top: 4px;">₹{{ "%.0f"|format(stats.cod_bookings_sum) }}</div>
+                <div style="font-size: 0.8rem; color: #d97706; margin-top: 4px;">{{ stats.cod_bookings_count }} COD Bookings Placed</div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 7. ONLINE RAZORPAY PAID TRANSACTIONS SECTION -->
+    <div id="online-payments-section" style="background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--gray-200); padding: 28px; box-shadow: var(--shadow-sm); margin-bottom: 40px; scroll-margin-top: 100px;">
+        <h3 style="font-size: 1.3rem; margin-bottom: 8px; color: var(--dark); display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-shield-halved" style="color: #2563eb;"></i> Successful Razorpay Online Paid Transactions
+        </h3>
+        <p style="color: var(--gray-600); font-size: 0.9rem; margin-bottom: 20px;">Cryptographically verified digital payment receipts. Read-only verified records.</p>
+
+        {% if online_paid_bookings %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>Customer</th>
+                            <th>Provider</th>
+                            <th>Service</th>
+                            <th>Amount</th>
+                            <th>Payment Status</th>
+                            <th>Transaction / Payment ID</th>
+                            <th>Invoice</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in online_paid_bookings %}
+                            <tr>
+                                <td><strong>#FIX-{{ b.id }}</strong></td>
+                                <td>{{ b.customer.full_name }}</td>
+                                <td>{{ b.provider.full_name }}</td>
+                                <td>{{ b.service.title }}</td>
+                                <td><strong style="color: #2563eb;">₹{{ "%.0f"|format(b.total_amount) }}</strong></td>
+                                <td><span class="badge-status badge-completed" style="background:#10b981; color:white;">Paid ✓</span></td>
+                                <td>
+                                    {% if b.payments and b.payments[0].razorpay_payment_id %}
+                                        <code style="font-size: 0.8rem; background: var(--gray-100); padding: 2px 6px; border-radius: 4px;">{{ b.payments[0].razorpay_payment_id }}</code>
+                                    {% else %}
+                                        <code style="font-size: 0.8rem; background: var(--gray-100); padding: 2px 6px; border-radius: 4px;">Razorpay Verified</code>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('payment.show_invoice', booking_id=b.id) }}" target="_blank" class="btn btn-outline btn-sm" style="padding: 4px 8px; font-size: 0.78rem;">
+                                        <i class="fa-solid fa-file-invoice"></i> View Invoice
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p style="color: var(--gray-600);">No Razorpay online payments recorded yet.</p>
+        {% endif %}
+    </div>
+
+
+    <!-- 8. CASH ON SERVICE (COD) BOOKINGS SECTION -->
+    <div id="cod-bookings-section" style="background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--gray-200); padding: 28px; box-shadow: var(--shadow-sm); margin-bottom: 40px; scroll-margin-top: 100px;">
+        <h3 style="font-size: 1.3rem; margin-bottom: 8px; color: var(--dark); display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-hand-holding-dollar" style="color: #d97706;"></i> Cash on Service (COD) Bookings
+        </h3>
+        <p style="color: var(--gray-600); font-size: 0.9rem; margin-bottom: 20px;">Service bookings with cash collection scheduled upon service completion.</p>
+
+        {% if cod_bookings %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>Customer</th>
+                            <th>Provider</th>
+                            <th>Service Title</th>
+                            <th>Amount</th>
+                            <th>Job Status</th>
+                            <th>Payment Status</th>
+                            <th>Invoice</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in cod_bookings %}
+                            <tr>
+                                <td><strong>#FIX-{{ b.id }}</strong></td>
+                                <td>{{ b.customer.full_name }}</td>
+                                <td>{{ b.provider.full_name }}</td>
+                                <td>{{ b.service.title }}</td>
+                                <td><strong style="color: #d97706;">₹{{ "%.0f"|format(b.total_amount) }}</strong></td>
+                                <td><span class="badge-status badge-{{ b.status.lower() }}">{{ b.status }}</span></td>
+                                <td>
+                                    {% if b.payment_status == 'Paid' %}
+                                        <span class="badge-status badge-completed" style="background:#10b981; color:white;">Paid ✓</span>
+                                    {% else %}
+                                        <span class="badge-status badge-pending" style="background:#fffbe6; color:#d97706; border:1px solid #ffe58f;">Payable at Service</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('payment.show_invoice', booking_id=b.id) }}" target="_blank" class="btn btn-outline btn-sm" style="padding: 4px 8px; font-size: 0.78rem;">
+                                        <i class="fa-solid fa-file-invoice"></i> View Invoice
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p style="color: var(--gray-600);">No COD bookings recorded yet.</p>
+        {% endif %}
+    </div>
+
+
+    <!-- 9. CATEGORY & CONTACT MESSAGES GRID -->
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+        
+        <!-- Contact Inquiries Section -->
+        <div id="messages-section" style="background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--gray-200); padding: 24px; box-shadow: var(--shadow-sm); scroll-margin-top: 100px;">
+            <h3 style="font-size: 1.3rem; margin-bottom: 16px;">Contact Form Inquiries</h3>
+            {% if contact_messages %}
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Sender Name</th>
+                                <th>Email</th>
+                                <th>Subject</th>
+                                <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for msg in contact_messages %}
+                                <tr>
+                                    <td><small>{{ msg.created_at.strftime('%Y-%m-%d %H:%M') }}</small></td>
+                                    <td><strong>{{ msg.name }}</strong></td>
+                                    <td>{{ msg.email }}</td>
+                                    <td>{{ msg.subject }}</td>
+                                    <td><small style="color: var(--gray-700);">{{ msg.message }}</small></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p style="color: var(--gray-600);">No contact messages received yet.</p>
+            {% endif %}
+        </div>
+
+        <!-- Add Category Form -->
+        <div id="categories-section" style="background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--gray-200); padding: 24px; box-shadow: var(--shadow-sm); scroll-margin-top: 100px;">
+            <h3 style="font-size: 1.3rem; margin-bottom: 16px;">Add Service Category</h3>
+            <form action="{{ url_for('admin.add_category') }}" method="POST">
+                <div class="form-group">
+                    <label for="name" class="form-label">Category Name *</label>
+                    <input type="text" id="name" name="name" class="form-control" placeholder="e.g. Pest Control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="slug" class="form-label">URL Slug *</label>
+                    <input type="text" id="slug" name="slug" class="form-control" placeholder="e.g. pest-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description" class="form-label">Description</label>
+                    <input type="text" id="description" name="description" class="form-control" placeholder="Brief service description">
+                </div>
+
+                <div class="form-group">
+                    <label for="icon" class="form-label">FontAwesome Icon</label>
+                    <input type="text" id="icon" name="icon" class="form-control" placeholder="fa-bug" value="fa-tools">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fa-solid fa-plus"></i> Add Category
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,258 @@
+{% extends 'provider/layout.html' %}
+
+{% block title %}Manage Services | FixMate Provider Portal{% endblock %}
+
+{% block provider_content %}
+<div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-sm); margin-bottom: 30px;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h2 style="font-size: 1.6rem; color: var(--dark); margin-bottom: 4px;"><i class="fa-solid fa-list-check" style="color: var(--primary);"></i> Manage Service Catalog</h2>
+            <p style="color: var(--gray-600); font-size: 0.92rem;">Create, edit, pause, or activate your listed services for customers.</p>
+        </div>
+        <button class="btn btn-primary" onclick="document.getElementById('add-service-modal').style.display='flex';">
+            <i class="fa-solid fa-plus"></i> Add New Service
+        </button>
+    </div>
+</div>
+
+<!-- My Service Listings Grid -->
+{% if my_services %}
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+        {% for s in my_services %}
+            <div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; justify-content: space-between;">
+                
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                        <span class="service-badge">{{ s.category.name }}</span>
+                        {% if s.is_active %}
+                            <span class="badge-status badge-approved">Active</span>
+                        {% else %}
+                            <span class="badge-status badge-pending">Paused</span>
+                        {% endif %}
+                    </div>
+
+                    {% if s.image %}
+                        <img src="{{ url_for('static', filename='uploads/documents/' + s.image) }}" 
+                             alt="{{ s.title }}" 
+                             style="width: 100%; height: 160px; object-fit: cover; border-radius: var(--radius-md); margin-bottom: 14px; border: 1px solid var(--gray-200);">
+                    {% endif %}
+
+                    <h3 style="font-size: 1.2rem; color: var(--dark); margin-bottom: 6px;">{{ s.title }}</h3>
+                    <p style="color: var(--gray-600); font-size: 0.9rem; line-height: 1.5; margin-bottom: 16px;">{{ s.description }}</p>
+
+                    <div style="background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: var(--radius-md); padding: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; font-size: 0.88rem;">
+                        <div>
+                            <span style="color: var(--gray-600);">Charges:</span>
+                            <strong style="color: var(--primary); font-size: 1rem; margin-left: 4px;">₹{{ "%.0f"|format(s.price) }}</strong>
+                            <small style="color: var(--gray-600);">({{ s.price_type }})</small>
+                        </div>
+                        <div>
+                            <span style="color: var(--gray-600);"><i class="fa-regular fa-clock"></i> Est. Time:</span>
+                            <strong>{{ s.estimated_time or '1-2 Hours' }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Controls: Edit, Delete, Pause / Activate -->
+                <div style="border-top: 1px solid var(--gray-200); padding-top: 16px; display: flex; justify-content: space-between; align-items: center;">
+                    <form action="{{ url_for('provider.toggle_service_status', service_id=s.id) }}" method="POST" style="display: inline;">
+                        {% if s.is_active %}
+                            <button type="submit" class="btn btn-outline btn-sm" style="color: var(--warning); border-color: var(--warning);">
+                                <i class="fa-solid fa-pause"></i> Pause Service
+                            </button>
+                        {% else %}
+                            <button type="submit" class="btn btn-success btn-sm">
+                                <i class="fa-solid fa-play"></i> Activate Service
+                            </button>
+                        {% endif %}
+                    </form>
+
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" class="btn btn-outline btn-sm edit-service-btn"
+                                data-id="{{ s.id }}"
+                                data-title="{{ s.title }}"
+                                data-category="{{ s.category_id }}"
+                                data-description="{{ s.description }}"
+                                data-price="{{ s.price }}"
+                                data-price-type="{{ s.price_type }}"
+                                data-est-time="{{ s.estimated_time or '1-2 Hours' }}">
+                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                        </button>
+                        <form action="{{ url_for('provider.delete_service', service_id=s.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this service listing?');" style="display: inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="fa-solid fa-trash"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div style="text-align: center; padding: 60px 20px; background: var(--white); border-radius: var(--radius-lg); border: 1px dashed var(--gray-300);">
+        <i class="fa-solid fa-folder-open" style="font-size: 3rem; color: var(--gray-400); margin-bottom: 14px;"></i>
+        <h3>No Services Added Yet</h3>
+        <p style="color: var(--gray-600); margin-top: 6px;">Add your first service listing to start receiving customer bookings.</p>
+        <button class="btn btn-primary" onclick="document.getElementById('add-service-modal').style.display='flex';" style="margin-top: 16px;">
+            <i class="fa-solid fa-plus"></i> Add Service
+        </button>
+    </div>
+{% endif %}
+
+<!-- Add Service Modal -->
+<div id="add-service-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: var(--radius-lg); padding: 32px; width: 100%; max-width: 600px; box-shadow: var(--shadow-md); position: relative;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="font-size: 1.3rem; margin: 0;">Add New Service Listing</h3>
+            <button type="button" onclick="document.getElementById('add-service-modal').style.display='none';" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--gray-500);">&times;</button>
+        </div>
+
+        <form action="{{ url_for('provider.add_service') }}" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="add-title" class="form-label">Service Title / Name *</label>
+                <input type="text" id="add-title" name="title" class="form-control" placeholder="e.g. AC Filter Jet Service & Top-up" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="add-category" class="form-label">Category *</label>
+                    <select id="add-category" name="category_id" class="form-control" required>
+                        <option value="">Select Category</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="add-estimated-time" class="form-label">Estimated Time *</label>
+                    <input type="text" id="add-estimated-time" name="estimated_time" class="form-control" placeholder="e.g. 1-2 Hours" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="add-price" class="form-label">Price (₹) *</label>
+                    <input type="number" id="add-price" name="price" step="0.01" min="1" class="form-control" placeholder="e.g. 499" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="add-price-type" class="form-label">Price Model *</label>
+                    <select id="add-price-type" name="price_type" class="form-control" required>
+                        <option value="Fixed">Fixed Rate</option>
+                        <option value="Per Hour">Per Hour</option>
+                        <option value="Per Visit">Per Visit</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="add-description" class="form-label">Service Description *</label>
+                <textarea id="add-description" name="description" class="form-control" rows="3" placeholder="Describe the inclusions and process..." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="add-image" class="form-label">Service Image (Optional)</label>
+                <input type="file" id="add-image" name="image" class="form-control" accept="image/*">
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px;">
+                <button type="button" class="btn btn-outline" onclick="document.getElementById('add-service-modal').style.display='none';">Cancel</button>
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i> Save Service</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Service Modal -->
+<div id="edit-service-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: var(--radius-lg); padding: 32px; width: 100%; max-width: 600px; box-shadow: var(--shadow-md); position: relative;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="font-size: 1.3rem; margin: 0;">Edit Service Listing</h3>
+            <button type="button" onclick="document.getElementById('edit-service-modal').style.display='none';" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--gray-500);">&times;</button>
+        </div>
+
+        <form id="edit-service-form" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="edit-title" class="form-label">Service Title / Name *</label>
+                <input type="text" id="edit-title" name="title" class="form-control" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="edit-category" class="form-label">Category *</label>
+                    <select id="edit-category" name="category_id" class="form-control" required>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-estimated-time" class="form-label">Estimated Time *</label>
+                    <input type="text" id="edit-estimated-time" name="estimated_time" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="edit-price" class="form-label">Price (₹) *</label>
+                    <input type="number" id="edit-price" name="price" step="0.01" min="1" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-price-type" class="form-label">Price Model *</label>
+                    <select id="edit-price-type" name="price_type" class="form-control" required>
+                        <option value="Fixed">Fixed Rate</option>
+                        <option value="Per Hour">Per Hour</option>
+                        <option value="Per Visit">Per Visit</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="edit-description" class="form-label">Service Description *</label>
+                <textarea id="edit-description" name="description" class="form-control" rows="3" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="edit-image" class="form-label">Update Service Image (Optional)</label>
+                <input type="file" id="edit-image" name="image" class="form-control" accept="image/*">
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px;">
+                <button type="button" class="btn btn-outline" onclick="document.getElementById('edit-service-modal').style.display='none';">Cancel</button>
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const editBtns = document.querySelectorAll('.edit-service-btn');
+    editBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            const title = btn.getAttribute('data-title');
+            const categoryId = btn.getAttribute('data-category');
+            const description = btn.getAttribute('data-description');
+            const price = btn.getAttribute('data-price');
+            const priceType = btn.getAttribute('data-price-type');
+            const estTime = btn.getAttribute('data-est-time');
+
+            document.getElementById('edit-service-form').action = '/provider/service/edit/' + id;
+            document.getElementById('edit-title').value = title;
+            document.getElementById('edit-category').value = categoryId;
+            document.getElementById('edit-description').value = description;
+            document.getElementById('edit-price').value = price;
+            document.getElementById('edit-price-type').value = priceType;
+            document.getElementById('edit-estimated-time').value = estTime;
+            document.getElementById('edit-service-modal').style.display = 'flex';
+        });
+    });
+});
+</script>
+
+{% endblock %}

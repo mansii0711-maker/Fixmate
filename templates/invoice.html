@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice {{ invoice_no }} | FixMate Service Invoice</title>
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --dark: #0f172a;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-600: #475569;
+            --gray-800: #1e293b;
+            --success: #10b981;
+            --warning: #d97706;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background: #f8fafc; color: var(--gray-800); padding: 40px 20px; line-height: 1.5; }
+        
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 1px solid var(--gray-200);
+            padding: 40px;
+        }
+
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 24px;
+            border-bottom: 2px solid var(--gray-200);
+            margin-bottom: 30px;
+        }
+
+        .brand-logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .invoice-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-paid { background: #d1fae5; color: #065f46; border: 1px solid #10b981; }
+        .badge-pending { background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .info-card {
+            background: #f8fafc;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 18px;
+        }
+        .info-card h4 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: var(--gray-600);
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--gray-200);
+            padding-bottom: 6px;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        .invoice-table th {
+            background: #f1f5f9;
+            color: var(--gray-800);
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--gray-200);
+        }
+        .invoice-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--gray-200);
+            font-size: 0.95rem;
+        }
+
+        .summary-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            background: #f8fafc;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            border: none;
+            font-size: 0.92rem;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-outline { background: white; border: 1px solid var(--gray-200); color: var(--gray-800); }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .invoice-container { box-shadow: none; border: none; padding: 0; }
+            .action-bar { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="invoice-container">
+    
+    <!-- Invoice Header -->
+    <div class="invoice-header">
+        <div>
+            <div class="brand-logo">
+                <i class="fa-solid fa-wrench"></i> FixMate 
+            </div>
+            <div style="font-size: 0.88rem; color: var(--gray-600); margin-top: 4px;">Local Service & Booking Platform</div>
+        </div>
+        <div style="text-align: right;">
+            <h2 style="font-size: 1.4rem; color: var(--dark); margin-bottom: 4px;">TAX INVOICE</h2>
+            <div style="font-size: 0.9rem; color: var(--gray-600);">Invoice No: <strong>{{ invoice_no }}</strong></div>
+            <div style="font-size: 0.9rem; color: var(--gray-600);">Booking ID: <strong>#FIX-{{ booking.id }}</strong></div>
+            <div style="font-size: 0.9rem; color: var(--gray-600); margin-top: 2px;">
+                Date: {{ booking.created_at.strftime('%d %b %Y') if booking.created_at else '07 Oct 2026' }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Status Banner -->
+    <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 14px 20px; border-radius: 8px; border: 1px solid var(--gray-200); margin-bottom: 30px;">
+        <div>
+            <span style="font-size: 0.85rem; color: var(--gray-600); font-weight: 600; text-transform: uppercase;">Payment Method:</span>
+            <strong style="font-size: 1rem; color: var(--dark); margin-left: 6px;">
+                {% if booking.payment_method == 'Razorpay' or (booking.payments and booking.payments[0].payment_method == 'Razorpay') %}
+                    Online Payment (Razorpay)
+                {% else %}
+                    Cash on Service (COD)
+                {% endif %}
+            </strong>
+        </div>
+        <div>
+            {% if booking.payment_status == 'Paid' %}
+                <span class="invoice-badge badge-paid"><i class="fa-solid fa-circle-check"></i> PAYMENT PAID</span>
+            {% else %}
+                <span class="invoice-badge badge-pending"><i class="fa-solid fa-clock"></i> PAYMENT PENDING</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Customer & Provider Details Grid -->
+    <div class="details-grid">
+        <div class="info-card">
+            <h4>Billed To (Customer)</h4>
+            <div style="font-weight: 700; font-size: 1.05rem; color: var(--dark);">{{ booking.customer.full_name }}</div>
+            <div style="font-size: 0.9rem; color: var(--gray-600); margin-top: 4px;"><i class="fa-solid fa-envelope"></i> {{ booking.customer.email }}</div>
+            <div style="font-size: 0.9rem; color: var(--gray-600); margin-top: 2px;"><i class="fa-solid fa-phone"></i> {{ booking.customer.mobile }}</div>
+            <div style="font-size: 0.9rem; color: var(--gray-800); margin-top: 6px;">
+                <strong>Service Address:</strong><br>{{ booking.address }}
+            </div>
+        </div>
+
+        <div class="info-card">
+            <h4>Service Provider Details</h4>
+            <div style="font-weight: 700; font-size: 1.05rem; color: var(--dark);">{{ booking.provider.full_name }}</div>
+            <div style="font-size: 0.9rem; color: var(--primary); font-weight: 600; margin-top: 2px;">
+                <i class="fa-solid {{ booking.service.category.icon }}"></i> {{ booking.service.category.name }} Specialist
+            </div>
+            <div style="font-size: 0.9rem; color: var(--gray-600); margin-top: 4px;"><i class="fa-solid fa-phone"></i> {{ booking.provider.mobile }}</div>
+            <div style="font-size: 0.9rem; color: var(--gray-600); margin-top: 2px;">Qualification: {{ booking.service.provider.qualification }}</div>
+        </div>
+    </div>
+
+    <!-- Service Table -->
+    <table class="invoice-table">
+        <thead>
+            <tr>
+                <th>Service Description</th>
+                <th>Scheduled Date & Time</th>
+                <th>Price Type</th>
+                <th style="text-align: right;">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <strong style="color: var(--dark); font-size: 1rem;">{{ booking.service.title }}</strong>
+                    <div style="font-size: 0.85rem; color: var(--gray-600); margin-top: 4px;">{{ booking.service.description[:120] }}...</div>
+                </td>
+                <td>
+                    <div>{{ booking.booking_date }}</div>
+                    <small style="color: var(--gray-600);">{{ booking.time_slot }}</small>
+                </td>
+                <td>{{ booking.service.price_type }}</td>
+                <td style="text-align: right; font-weight: 700;">₹{{ "%.0f"|format(booking.total_amount) }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Summary & Payment Info Box -->
+    <div class="summary-box">
+        <div>
+            <div style="font-size: 0.85rem; color: var(--gray-600); font-weight: 600; text-transform: uppercase;">Transaction Reference / Note</div>
+            <div style="font-size: 0.95rem; margin-top: 4px; font-weight: 500;">
+                {% if booking.payment_status == 'Paid' %}
+                    {% if booking.payments and booking.payments[0].razorpay_payment_id %}
+                        Transaction ID: <code style="background: var(--gray-200); padding: 2px 6px; border-radius: 4px;">{{ booking.payments[0].razorpay_payment_id }}</code>
+                    {% else %}
+                        Razorpay Online Transaction Verified
+                    {% endif %}
+                    <div style="color: var(--success); font-weight: 600; font-size: 0.88rem; margin-top: 4px;"><i class="fa-solid fa-check"></i> Payment received successfully.</div>
+                {% else %}
+                    <span style="color: var(--warning); font-weight: 600;"><i class="fa-solid fa-info-circle"></i> Payment will be collected after service.</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div style="text-align: right;">
+            <div style="font-size: 0.85rem; color: var(--gray-600); text-transform: uppercase;">Grand Total</div>
+            <div style="font-size: 2rem; font-weight: 800; color: var(--primary);">₹{{ "%.0f"|format(booking.total_amount) }}</div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-bar">
+        <a href="{{ url_for('customer.my_bookings') }}" class="btn btn-outline">
+            <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+        </a>
+
+        <div style="display: flex; gap: 10px;">
+            <button onclick="window.print()" class="btn btn-outline">
+                <i class="fa-solid fa-print"></i> Print Invoice
+            </button>
+            <button onclick="window.print()" class="btn btn-primary">
+                <i class="fa-solid fa-download"></i> Download PDF
+            </button>
+        </div>
+    </div>
+
+</div>
+
+{% if auto_print %}
+<script>
+    window.addEventListener('load', function() {
+        window.print();
+    });
+</script>
+{% endif %}
+
+</body>
+</html>

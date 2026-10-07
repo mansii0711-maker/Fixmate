@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}How It Works | FixMate Local Service Platform{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top: 40px;">
+    <div class="container" style="max-width: 900px;">
+        <h1 class="section-title">How FixMate Works</h1>
+        <p class="section-subtitle">A simple, transparent, and secure local service experience for Customers & Providers</p>
+
+        <!-- Customer Workflow Section -->
+        <div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 36px; box-shadow: var(--shadow-sm); margin-bottom: 40px;">
+            <h2 style="font-size: 1.6rem; color: var(--primary); margin-bottom: 24px; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-user"></i> For Customers
+            </h2>
+
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+                <div style="display: flex; gap: 20px; align-items: flex-start;">
+                    <div class="step-number" style="margin: 0; flex-shrink: 0;">1</div>
+                    <div>
+                        <h3 style="font-size: 1.2rem; margin-bottom: 6px;">Browse & Search Services</h3>
+                        <p style="color: var(--gray-600);">Search for required home services such as electrician repairs, plumbing fixes, house cleaning, appliance maintenance, or home tutors. Filter by location and category.</p>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 20px; align-items: flex-start;">
+                    <div class="step-number" style="margin: 0; flex-shrink: 0;">2</div>
+                    <div>
+                        <h3 style="font-size: 1.2rem; margin-bottom: 6px;">Select Service & Preferred Slot</h3>
+                        <p style="color: var(--gray-600);">Review provider profiles, ratings, qualifications, and upfront prices. Pick your date and convenient time slot for technician visit.</p>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 20px; align-items: flex-start;">
+                    <div class="step-number" style="margin: 0; flex-shrink: 0;">3</div>
+                    <div>
+                        <h3 style="font-size: 1.2rem; margin-bottom: 6px;">Service Delivery & Real-time Updates</h3>
+                        <p style="color: var(--gray-600);">The service provider reviews and confirms your appointment request. Track your booking status directly on your Customer Dashboard.</p>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 20px; align-items: flex-start;">
+                    <div class="step-number" style="margin: 0; flex-shrink: 0;">4</div>
+                    <div>
+                        <h3 style="font-size: 1.2rem; margin-bottom: 6px;">Pay & Share Review</h3>
+                        <p style="color: var(--gray-600);">Once the service is completed satisfactorily, pay cash-on-service or online, and leave a verified rating & feedback review for the technician.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Provider Workflow Section -->
+        <div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 36px; box-shadow: var(--shadow-sm);">
+            <h2 style="font-size: 1.6rem; color: var(--secondary); margin-bottom: 24px; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-user-gear"></i> For Service Providers
+            </h2>
+
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+                <div style="display: flex; gap: 20px; align-items: flex-start;">
+                    <div class="step-number" style="background: var(--secondary); margin: 0; flex-shrink: 0;">1</div>
+                    <div>
+                        <h3 style="font-size: 1.2rem; margin-bottom: 6px;">Register & Submit Verification Document</h3>
+                        <p style="color: var(--gray-600);">Sign up as a provider, detail your experience and qualifications, operating area, and upload your ID or trade certificate.</p>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 20px; align-items: flex-start;">
+                    <div class="step-number" style="background: var(--secondary); margin: 0; flex-shrink: 0;">2</div>
+                    <div>
+                        <h3 style="font-size: 1.2rem; margin-bottom: 6px;">Admin Review & Profile Approval</h3>
+                        <p style="color: var(--gray-600);">Our administration team verifies your credentials. Once approved, your profile and services become visible to local customers.</p>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 20px; align-items: flex-start;">
+                    <div class="step-number" style="background: var(--secondary); margin: 0; flex-shrink: 0;">3</div>
+                    <div>
+                        <h3 style="font-size: 1.2rem; margin-bottom: 6px;">Receive & Manage Bookings</h3>
+                        <p style="color: var(--gray-600);">Accept or manage incoming service requests via your dedicated Provider Dashboard. Mark jobs as Confirmed or Completed.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

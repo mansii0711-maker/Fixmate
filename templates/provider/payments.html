@@ -1,0 +1,92 @@
+{% extends 'provider/layout.html' %}
+
+{% block title %}Payments & Revenue | FixMate Provider Portal{% endblock %}
+
+{% block provider_content %}
+<div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-sm); margin-bottom: 30px;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h2 style="font-size: 1.6rem; color: var(--dark); margin-bottom: 4px;"><i class="fa-solid fa-wallet" style="color: var(--primary);"></i> Revenue & Payment History</h2>
+            <p style="color: var(--gray-600); font-size: 0.92rem;">Track earnings from completed jobs, pending customer payments, and payout records.</p>
+        </div>
+        <div style="background: var(--primary-light); border: 1px solid rgba(79, 70, 229, 0.2); padding: 12px 20px; border-radius: var(--radius-md); text-align: right;">
+            <div style="font-size: 0.78rem; color: var(--gray-600); font-weight: 700; text-transform: uppercase;">Total Earnings</div>
+            <div style="font-size: 1.6rem; font-weight: 800; color: var(--primary);">₹{{ "%.0f"|format(total_earned) }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Pending / Payable Payments Block -->
+<div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); margin-bottom: 30px;">
+    <h3 style="font-size: 1.2rem; color: var(--warning); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-clock"></i> Pending Receivables
+    </h3>
+    {% if pending_payments %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Customer</th>
+                        <th>Service Title</th>
+                        <th>Scheduled Date</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in pending_payments %}
+                        <tr>
+                            <td><strong>#FIX-{{ p.id }}</strong></td>
+                            <td>{{ p.customer.full_name }}</td>
+                            <td>{{ p.service.title }}</td>
+                            <td>{{ p.booking_date }}</td>
+                            <td><strong style="color: var(--primary);">₹{{ "%.0f"|format(p.total_amount) }}</strong></td>
+                            <td><span class="badge-status badge-pending">Payable at Visit / Cash</span></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p style="color: var(--gray-600); font-size: 0.9rem;">No pending receivables outstanding.</p>
+    {% endif %}
+</div>
+
+<!-- Completed Payment History -->
+<div style="background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm);">
+    <h3 style="font-size: 1.2rem; color: var(--success); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-circle-check"></i> Cleared Earnings & Receipts
+    </h3>
+    {% if completed_payments %}
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Receipt ID</th>
+                        <th>Customer</th>
+                        <th>Service Title</th>
+                        <th>Date Completed</th>
+                        <th>Earned Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cp in completed_payments %}
+                        <tr>
+                            <td><strong>#REC-{{ cp.id }}</strong></td>
+                            <td>{{ cp.customer.full_name }}</td>
+                            <td>{{ cp.service.title }}</td>
+                            <td>{{ cp.booking_date }}</td>
+                            <td><strong style="color: var(--dark);">₹{{ "%.0f"|format(cp.total_amount) }}</strong></td>
+                            <td><span class="badge-status badge-completed">Paid ✓</span></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p style="color: var(--gray-600); font-size: 0.9rem;">No completed payment history recorded yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

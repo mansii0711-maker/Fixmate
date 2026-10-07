@@ -1,0 +1,44 @@
+{% extends 'customer/layout.html' %}
+
+{% block title %}Payment Failed / Cancelled | FixMate{% endblock %}
+
+{% block customer_content %}
+<div style="max-width: 650px; margin: 40px auto; text-align: center;">
+    <div style="background: var(--white); border: 1px solid #fecaca; border-radius: var(--radius-lg); padding: 40px; box-shadow: var(--shadow-md);">
+        
+        <div style="width: 80px; height: 80px; border-radius: 50%; background: #fee2e2; color: #dc2626; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 20px;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+
+        <h2 style="font-size: 1.8rem; color: #991b1b; margin-bottom: 10px;">Payment Not Completed</h2>
+        <p style="color: var(--gray-700); font-size: 1rem; line-height: 1.6; margin-bottom: 24px;">
+            Your online payment attempt for <strong>"{{ booking.service.title }}"</strong> (Booking <strong>#FIX-{{ booking.id }}</strong>) was not completed or was cancelled.
+        </p>
+
+        <div style="background: var(--gray-50); border: 1px solid var(--gray-200); padding: 18px; border-radius: var(--radius-md); text-align: left; margin-bottom: 28px; font-size: 0.92rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                <span style="color: var(--gray-600);">Booking Reference:</span>
+                <strong>#FIX-{{ booking.id }}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                <span style="color: var(--gray-600);">Amount Payable:</span>
+                <strong style="color: var(--primary);">₹{{ "%.0f"|format(booking.total_amount) }}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--gray-600);">Payment Status:</span>
+                <span class="badge-status badge-pending" style="background:#fee2e2; color:#dc2626;">Payment Failed</span>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 14px; justify-content: center;">
+            <a href="{{ url_for('payment.select_payment_method', booking_id=booking.id) }}" class="btn btn-primary btn-lg" style="display: inline-flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-rotate-right"></i> Retry Payment Now
+            </a>
+            <a href="{{ url_for('customer.my_bookings') }}" class="btn btn-outline btn-lg">
+                View My Bookings
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
